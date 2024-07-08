@@ -22,6 +22,12 @@ export class CheckoutUserProduct {
   })
   userProductId: { [key: string]: number };
 
+  @Column('json', {
+    name: 'product_ids',
+    nullable: true,
+  })
+  productIds: { [key: string]: number };
+
   @Column('varchar', {
     name: 'user_full_name',
     nullable: false,
@@ -82,6 +88,8 @@ export class CheckoutUserProduct {
   })
   orderName: string;
 
+  @Column('varchar', { name: 'order_address', nullable: false, default: 'k' })
+  orderAddress: string;
   @Column('varchar', {
     name: 'order_email',
     nullable: false,
@@ -108,4 +116,17 @@ export class CheckoutUserProduct {
     default: 'products in store',
   })
   deliveryStatus: string;
+
+  @Column('varchar', {
+    name: 'orderStatus',
+    nullable: false,
+    default: 'in progress',
+  })
+  orderStatus: string;
+
+  @Column('timestamp', {
+    name: 'created_at',
+    nullable: true,
+  })
+  createdAt: Date;
 }

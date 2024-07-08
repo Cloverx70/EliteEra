@@ -134,7 +134,12 @@ const HeroSection = () => {
       {isError && <p>Error...</p>}
 
       {Products && (
-        <section
+        <motion.section
+          key={Products}
+          initial={{ opacity: 0, x: 100 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -100 }}
+          transition={{ duration: 0.5 }}
           className="w-full h-[650px] lg:h-[550px] md:h-[490px] pb-7 overflow-hidden relative sm:pb-5 pl-10 pr-10 custom-mobile:pb-5 md:pr-6 md:pl-6 text-white"
           onMouseEnter={togglePause}
           onMouseLeave={togglePause}
@@ -258,7 +263,7 @@ const HeroSection = () => {
           <div className="w-full flex items-center sm:hidden xl:hidden 2xl:hidden custom-mobile:hidden justify-center">
             <GoChevronDown size={50} className="lg:size-16" />
           </div>
-        </section>
+        </motion.section>
       )}
       <div className="w-full h-[2px] bg-custom-ke7li" />
     </>

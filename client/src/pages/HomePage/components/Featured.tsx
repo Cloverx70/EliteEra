@@ -6,6 +6,7 @@ import { GoChevronLeft } from "react-icons/go";
 import { GoChevronRight } from "react-icons/go";
 import { fetchGetAllProducts } from "../../../api";
 import { Iproduct } from "@/interfaces";
+import { motion } from "framer-motion";
 
 const Featured = () => {
   const {
@@ -61,7 +62,13 @@ const Featured = () => {
 
   return (
     <>
-      <section className="overflow-hidden w-full relative pr-10 pl-10 pt-14 pb-6 text-white">
+      <motion.section
+        key={"Featured"}
+        initial={{ opacity: 0, x: -100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="overflow-hidden w-full relative pr-10 pl-10 pt-14 pb-6 text-white"
+      >
         <p className="2xl:text-[500px] 2xl:left-[-110px] 2xl:top-10 font-bold text-[350px] text-center whitespace-nowrap text-custom-ke7li/20 z-10 absolute left-[-75px] top-[90px] md:top-[300px] ">
           FEATURED
         </p>
@@ -82,8 +89,11 @@ const Featured = () => {
               //@ts-ignore
               Products?.slice(StartIdx, EndIdx).map((item: Iproduct) => {
                 return (
-                  <div
+                  <motion.div
                     key={item.productId}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.7, type: "tween" }}
                     className="flex flex-col pt-20 gap-5 justify-center"
                   >
                     <div className=" flex justify-center items-center">
@@ -115,7 +125,7 @@ const Featured = () => {
                         <p className="font-semibold text-base">ADD TO CART</p>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })
             }
@@ -139,7 +149,7 @@ const Featured = () => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
     </>
   );
 };

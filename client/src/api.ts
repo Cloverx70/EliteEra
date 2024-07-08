@@ -3,12 +3,15 @@ import toast from "react-hot-toast";
 import {
   IUserCheckout,
   Icheckout,
+  Icollection,
   Iproduct,
   Ireviews,
   Istatistics,
   IuserProduct,
   UserData,
 } from "./interfaces";
+import { useQueryClient } from "@tanstack/react-query";
+import { useStatus } from "./contexts/statusContext";
 
 //Category Route :
 
@@ -47,7 +50,21 @@ export const fetchCreateCategory = async (name: string) => {
 };
 
 //Checkout Route :
-
+export const fetchGetAllCheckoutsByUserId = async (userid: number) => {
+  try {
+    const response = await axios.post(
+      `checkoutuserproducts/get-all-checkouts-by-user-id/${userid}`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
+};
 export const fetchGetCheckoutByCheckoutId = async (id: number) => {
   try {
     const response: AxiosResponse<IUserCheckout> =
@@ -94,7 +111,8 @@ export const fetchCheckoutByUserProductIdAndUserId = async (
   orderName: string,
   orderEmail: string,
   orderPhone: number,
-  bringChange: number
+  bringChange: number,
+  orderAddress: string
 ) => {
   try {
     const response = await axios.post(
@@ -109,6 +127,7 @@ export const fetchCheckoutByUserProductIdAndUserId = async (
         orderEmail: orderEmail,
         orderPhone: orderPhone,
         bringChange: bringChange,
+        orderAddress: orderAddress,
       },
       {
         headers: {
@@ -300,7 +319,7 @@ export const fetchAddUserProduct = async (
   }
 };
 
-export const fetchGetAllUserProducts = async (id: number, token: string) => {
+export const fetchGetAllUserProducts = async (id: number) => {
   try {
     const response = await axios.get(
       `userproduct/get-all-user-products/${id}`,
@@ -374,7 +393,9 @@ export const fetchGetUserProductByUIDandPID = async (
 //colloctions route :
 
 export const fetchGetAllCollections = async () => {
-  const response = await axios.post("collection/get-all-collections");
+  const response: AxiosResponse<Icollection> = await axios.post<Icollection>(
+    "collection/get-all-collections"
+  );
 
   return response.data;
 };
@@ -406,18 +427,35 @@ export const fetchGetAllProducts = async () => {
 
 //Auth route :
 
+export const fetchGetUserById = async (id: number) => {
+  try {
+    const response = await axios.post(
+      `auth/get-user-by-id/${id}`,
+      {},
+      {
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      }
+    );
+    console.log(response.data);
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const fetchLogin = async (email: string, password: string) => {
   const response = await axios.post("auth/login", {
     email: email,
     password: password,
   });
-
   const token = response.data || null;
 
   if (token) {
     localStorage.setItem("token", token);
   }
-
   return response;
 };
 
@@ -457,4 +495,53 @@ export const fetchRegister = async (
   });
 
   return response.data;
+};
+
+export const FetchUpdateUserById = async (
+  id: number,
+  username: string,
+  fullName: string,
+  email: string,
+  addressone: string,
+  addresstwo: string
+) => {
+  try {
+    const response = await axios.post(
+      `auth/update-user-by-id/${id}`,
+      {
+        username,
+        fullName,
+        email,
+        addressone,
+        addresstwo,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
+};
+export const fetchUpdateUserPfpByURL = async (id: number, url: string) => {
+  try {
+    const response = await axios.post(
+      `user/update-user-pfp-by-id/${id}`,
+      { url },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
 };

@@ -1,5 +1,6 @@
 import { fetchaddEmailToNewsLetter } from "@/api";
 import { createToast } from "@/shared/Toast";
+import { motion } from "framer-motion";
 import React, { ChangeEvent, useState } from "react";
 
 const Newsletter = () => {
@@ -19,7 +20,13 @@ const Newsletter = () => {
   };
   return (
     <>
-      <section className=" w-full h-[250px] pt-5 pb-5 bg-custom-light-purple flex  justify-center items-center text-white font-Poppins font-bold">
+      <motion.section
+        key={"newsletter"}
+        initial={{ opacity: 0, x: 100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        className=" w-full h-[250px] pt-5 pb-5 bg-custom-light-purple flex  justify-center items-center text-white font-Poppins font-bold"
+      >
         <div className=" flex flex-col gap-5 items-center">
           <p className=" font-cabin font-bold text-4xl sm:text-3xl custom-mobile:text-3xl">
             WELCOME TO THE ELITE ERA
@@ -56,7 +63,7 @@ const Newsletter = () => {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
     </>
   );
 };

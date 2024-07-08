@@ -12,6 +12,8 @@ import { AdminService } from 'src/admin/admin.service';
 import { CartService } from 'src/cart/cart.service';
 import { sign } from 'crypto';
 import { statistics } from 'src/entities/entities/statistics';
+import { updateUserDto } from 'src/user/dtos/UpdateUser.dto';
+import { updateUserAuthDto } from './dtos/updateUser.dto';
 
 @Injectable()
 export class AuthService {
@@ -137,10 +139,40 @@ export class AuthService {
           addressone: user.addressOne,
           addresstwo: user.addressTwo,
           fullname: user.fullname,
+          userPfp: user.userpfp,
           isAdmin: adminresponse,
         };
         const token = this.jwtService.sign(payload);
         return token;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async getUserById(id: number) {
+    try {
+      const user = await this.AuthRepo.findOne({ where: { userId: id } });
+      if (user) return user;
+      else return null;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async UpdateUserById(id: number, req: updateUserAuthDto) {
+    try {
+      const user = await this.AuthRepo.findOne({ where: { userId: id } });
+      if (user) {
+        user.username = this.sanitizeInput(req.username);
+        user.fullname = this.sanitizeInput(req.fullName);
+        user.email = this.sanitizeInput(req.email);
+        user.addressOne = this.sanitizeInput(req.addressone);
+        user.addressTwo = this.sanitizeInput(req.addresstwo);
+        await this.AuthRepo.save(user);
+        return user;
+      } else {
+        return null;
       }
     } catch (error) {
       console.error(error);

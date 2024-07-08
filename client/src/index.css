@@ -5,6 +5,20 @@
 @tailwind components;
 @tailwind utilities;
 
+.underscore-hr {
+  border: none;
+  height: 1px;
+  background-image: linear-gradient(to right, #8a8282 30%, transparent 0%);
+  background-position: bottom;
+  background-size: 20px 2px; /* Adjust the size of each underscore */
+  background-repeat: repeat-x;
+  margin: 10px 0; /* Adjust margin as needed */
+}
+
+button:focus {
+  outline: none;
+}
+
 .width {
   width: 60%;
 }

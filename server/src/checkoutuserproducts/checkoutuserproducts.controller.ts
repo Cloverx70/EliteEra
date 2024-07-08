@@ -26,4 +26,10 @@ export class CheckoutuserproductsController {
       checkoutId,
     );
   }
+  @Post('get-all-checkouts-by-user-id/:userid')
+  async getAllCheckoutsByUserId(@Param('userid') userid: number) {
+    return await this.CheckoutUserProductService.getAllCheckoutsByUserId(
+      userid,
+    );
+  }
 }

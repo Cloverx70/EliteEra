@@ -35,6 +35,7 @@ import { RiDeleteBin5Fill } from "react-icons/ri";
 import Spinner from "./Spinner";
 import { CartItemsSkeleton } from "@/Skeletons/CartItemsSkeleton.1";
 import { FaShoppingCart } from "react-icons/fa";
+import SecondaryNavBar from "@/components/EliteEraComponents/SecondaryNavBar";
 
 const Navbar = () => {
   const client = useQueryClient();
@@ -49,11 +50,7 @@ const Navbar = () => {
     refetch: refetchCartItems,
   } = useQuery({
     queryKey: ["CartItems"],
-    queryFn: async () =>
-      await fetchGetAllUserProducts(
-        Status!.userId,
-        localStorage.getItem("token")!
-      )!,
+    queryFn: async () => await fetchGetAllUserProducts(Status!.userId)!,
   });
 
   const { data: UserCart, refetch: refetchUserCart } = useQuery({
@@ -75,7 +72,8 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     localStorage.removeItem("token");
-    setToken("");
+    client.invalidateQueries({ queryKey: ["status"] });
+    client.invalidateQueries({ queryKey: ["user"] });
   };
 
   const handleOnClickDelete = async (
@@ -168,11 +166,30 @@ const Navbar = () => {
                   <Spinner />
                 ) : (
                   <>
-                    {" "}
-                    <FaCircleUser
-                      size={22}
-                      className="text-custom-dark-ke7li cursor-pointer bg-custom-ke7li rounded-full ring-1 ring-custom-light-purple"
-                    />
+                    <Sheet>
+                      <SheetTrigger>
+                        {Status?.userpfp ? (
+                          <div className="w-7 h-7 rounded-full ring-1 ring-white p-1 flex items-center justify-center">
+                            <img
+                              src={Status?.userpfp}
+                              alt=""
+                              className=" object-cover rounded-full flex items-center justify-center "
+                            />
+                          </div>
+                        ) : (
+                          <FaCircleUser
+                            size={22}
+                            className="text-custom-dark-ke7li cursor-pointer bg-custom-ke7li rounded-full ring-1 ring-custom-light-purple"
+                          />
+                        )}{" "}
+                      </SheetTrigger>
+                      <SheetContent
+                        side={"top"}
+                        className=" bg-custom-dark-ke7li border-none w-full h-48"
+                      >
+                        <SecondaryNavBar />
+                      </SheetContent>
+                    </Sheet>
                     <p className="md:text-xs sm:hidden hover:text-custom-light-purple transition-all delay-100 ease-in-out cursor-pointer">
                       {Status?.username}
                     </p>
@@ -203,10 +220,10 @@ const Navbar = () => {
                 <SheetTrigger>
                   <div className="w-7 h-7 rounded-full cursor-pointer text-center bg-custom-light-purple">
                     <p className="text-xs font-bold pt-1.5 flex items-center justify-center">
-                      {UserCart?.cartItemsNumber || <Spinner />}
+                      {cartloading ? <Spinner /> : UserCart?.cartItemsNumber}
                     </p>
                     <p className="text-sm font-bold mt-5 rotate-90 hover:text-custom-light-purple transition-all delay-100 ease-in-out ">
-                      ${UserCart?.cartTotal || " "}
+                      {cartloading ? <Spinner /> : "$" + UserCart?.cartTotal}
                     </p>
                   </div>
                 </SheetTrigger>

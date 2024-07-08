@@ -93,7 +93,8 @@ const CheckoutBar: React.FC<CheckoutProps> = ({
         Checkout.orderName,
         Checkout.orderEmail,
         Checkout.orderPhone,
-        Checkout.changefor
+        Checkout.changefor,
+        Checkout.orderAddress
       );
       if (checkout) {
         createToast("You successfully checked out");
@@ -102,6 +103,9 @@ const CheckoutBar: React.FC<CheckoutProps> = ({
           Status?.userId!,
           userproductIds
         );
+        client.invalidateQueries({
+          queryKey: ["user"],
+        });
         if (checkobj) {
           navigate(`${checkout?.paymentMethod}/${checkout?.checkoutId},`, {
             state: { scrollTo: "whishtowhishref" },
@@ -116,7 +120,7 @@ const CheckoutBar: React.FC<CheckoutProps> = ({
 
   const { data: userproducts } = useQuery({
     queryKey: ["userproducts"],
-    queryFn: () => fetchGetAllUserProducts(Status?.userId!, " "),
+    queryFn: () => fetchGetAllUserProducts(Status?.userId!),
   });
 
   useEffect(() => {

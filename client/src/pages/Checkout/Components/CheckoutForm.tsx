@@ -48,9 +48,9 @@ const CheckoutForm = ({ Status, setCheckout, Checkout }: CheckoutFormProps) => {
             <input
               type="radio"
               onChange={handleOnChangeAdress}
-              value={Status?.addressone}
+              value={Status?.addressOne}
               id="option-one"
-              checked={Checkout.orderAddress === Status.addressone}
+              checked={Checkout.orderAddress === Status.addressOne}
               className="mt-1 cursor-pointer"
             />
             <div className="w-full flex flex-col gap-1">
@@ -61,7 +61,7 @@ const CheckoutForm = ({ Status, setCheckout, Checkout }: CheckoutFormProps) => {
                 className="selection:bg-none border-2 text-xs font-semibold outline-none text-custom-ke7li border-custom-dark-ke7li w-full h-9 px-2"
                 type="text"
                 readOnly
-                value={Status?.addressone}
+                value={Status?.addressOne}
               />
             </div>
           </div>
@@ -69,8 +69,8 @@ const CheckoutForm = ({ Status, setCheckout, Checkout }: CheckoutFormProps) => {
             <input
               type="radio"
               onChange={handleOnChangeAdress}
-              value={Status?.addresstwo}
-              checked={Checkout.orderAddress === Status.addresstwo}
+              value={Status?.addressTwo}
+              checked={Checkout.orderAddress === Status.addressTwo}
               id="option-two"
               className="mt-1 cursor-pointer"
             />
@@ -82,7 +82,7 @@ const CheckoutForm = ({ Status, setCheckout, Checkout }: CheckoutFormProps) => {
                 className="selection:bg-none border-2 text-xs font-semibold outline-none text-custom-ke7li border-custom-dark-ke7li w-full h-9 px-2"
                 type="text"
                 readOnly
-                value={Status?.addresstwo}
+                value={Status?.addressTwo}
               />
             </div>
           </div>

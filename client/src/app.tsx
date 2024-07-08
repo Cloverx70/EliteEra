@@ -15,6 +15,9 @@ import Footer from "./shared/Footer";
 import CheckoutScreensNav from "./pages/Checkout/checkoutScreensNav/CheckoutScreensNav";
 import ThankYou from "./pages/ThankYou/ThankYou";
 import Categories from "./pages/Categories/Categories";
+import OrderHistory from "./pages/OrderHistory/OrderHistory";
+import OrderHistoryComponentPage from "./pages/OrderHistory/Pages/OrderHistoryComponentPage";
+import Profile from "./pages/Profile/Profile";
 
 const App = () => {
   const location = useLocation();
@@ -25,7 +28,14 @@ const App = () => {
 
   return (
     <>
-      {location.pathname === "/login" ? "" : <Navbar />}
+      {location.pathname === "/login" ||
+      /^\/orderhistory\/\d+$/.test(location.pathname) ||
+      location.pathname === "/orderhistory" ||
+      location.pathname === "/profile" ? (
+        ""
+      ) : (
+        <Navbar />
+      )}
 
       <Routes>
         <Route path="/" index element={<HomePage />} />
@@ -42,6 +52,13 @@ const App = () => {
         />
         <Route path="/thankyou" element={<ThankYou />} />
         <Route path="/category/:name" element={<Categories />} />
+        <Route path="/orderhistory" element={<OrderHistory />} />
+
+        <Route
+          path="/orderhistory/:checkoutid"
+          element={<OrderHistoryComponentPage />}
+        />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
 
       {location.pathname === "/admin" ||

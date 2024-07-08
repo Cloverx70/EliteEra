@@ -31,6 +31,7 @@ module.exports = {
         "custom-light-purple": "#676eff",
         "custom-ke7li": "#72748e",
         "custom-dark-ke7li": "#23232f",
+        "custom-dark-white": "#F5F5F5",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

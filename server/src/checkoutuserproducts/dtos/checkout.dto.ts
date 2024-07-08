@@ -7,6 +7,8 @@ import {
   IsObject,
   IsInt,
   IsPositive,
+  isString,
+  isNotEmpty,
 } from 'class-validator';
 
 export class CheckoutDto {
@@ -55,4 +57,6 @@ export class CheckoutDto {
   @IsPositive()
   @IsOptional()
   bringChange: number;
+
+  orderAddress: string;
 }

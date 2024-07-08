@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CheckoutUserProduct } from 'src/entities/entities/CheckoutUserProudct';
 import { Repository } from 'typeorm';
@@ -8,6 +13,7 @@ import { Userproducts } from 'src/entities/entities/Userproducts';
 import { Products } from 'src/entities/entities/Products';
 import { promocode } from 'src/entities/entities/promocode';
 import { getCheckoutDto } from './dtos/getCheckout.dto';
+import { use } from 'passport';
 
 @Injectable()
 export class CheckoutuserproductsService {
@@ -23,15 +29,12 @@ export class CheckoutuserproductsService {
     @InjectRepository(promocode)
     private readonly promocodeRepo: Repository<promocode>,
   ) {}
-
   async Checkout(checkout: CheckoutDto) {
     try {
-      console.log(checkout);
       function generateRandomString(length: number): string {
         const characters =
           'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let result = '';
-
         for (let i = 0; i < length; i++) {
           const randomIndex = Math.floor(Math.random() * characters.length);
           result += characters[randomIndex];
@@ -45,52 +48,70 @@ export class CheckoutuserproductsService {
         where: { userId: checkout.userId },
       });
 
+      if (!user) throw new NotFoundException('User not found');
+
       const userproduct = await this.userProductRepo.find({
         where: { userId: checkout.userId },
       });
 
-      console.log(userproduct);
+      if (!userproduct.length)
+        throw new NotFoundException('User products not found');
 
-      const promocode = await this.promocodeRepo.findOne({
-        where: { promocode: checkout.promocode },
+      const promocode = checkout.promocode
+        ? await this.promocodeRepo.findOne({
+            where: { promocode: checkout.promocode },
+          })
+        : null;
+
+      let productsPrice = 0;
+
+      const productIds: { [key: string]: number } = {};
+
+      userproduct.forEach((element) => {
+        productIds[element.productId] = element.productId;
+        productsPrice += element.productPrice;
       });
-      let ProducstPrice = 0;
 
-      if (!user || !userproduct) throw NotFoundException;
-      else {
-        userproduct.forEach((element) => {
-          ProducstPrice += element.productPrice;
-        });
-      }
+      const productPriceAfterDiscount = promocode
+        ? productsPrice - productsPrice * (promocode.percentage / 100)
+        : productsPrice;
 
       const UserCheckout = this.checkoutUserProductRepo.create({
         checkoutId: Math.floor(Math.random() * 10000) + 1000,
         userId: checkout.userId,
         userProductId: checkout.userProductId,
         userFullName: user.fullname,
-        productPrice: ProducstPrice,
-        productPriceAfterDiscount:
-          checkout.promocode && checkout.promocode === promocode.promocode
-            ? ProducstPrice - ProducstPrice * (promocode.percentage / 100)
-            : ProducstPrice,
-
+        productPrice: productsPrice,
+        productPriceAfterDiscount,
         promocode: checkout.promocode,
         paymentMethod: checkout.paymentMethod,
         paymentStatus: 'unpaid',
         wishOrderCode:
-          checkout.paymentMethod === 'w2w' || 'visa' ? randomString : '',
+          checkout.paymentMethod === 'w2w' || checkout.paymentMethod === 'visa'
+            ? randomString
+            : '',
         orderSpecialInstructions: checkout.specialInstructions,
         orderName: checkout.orderName,
         orderEmail: checkout.orderEmail,
         orderPhone: checkout.orderPhone,
         bringChange: checkout.bringChange,
-        deliveryStatus: 'Produts in Store',
+        deliveryStatus: 'products in store',
+        orderStatus: 'in progress',
+        createdAt: new Date(),
+        productIds,
+        orderAddress: checkout.orderAddress,
       });
 
-      await this.checkoutUserProductRepo.save(UserCheckout);
+      user.totalSpendings += UserCheckout.productPriceAfterDiscount;
+      user.ongoingOrders += 1;
+
+      await this.userRepo.save(user); // Update existing user
+      await this.checkoutUserProductRepo.save(UserCheckout); // Save new checkout entity
+
       return UserCheckout;
     } catch (error) {
       console.error(error);
+      throw new InternalServerErrorException('Error during checkout process');
     }
   }
 
@@ -125,6 +146,20 @@ export class CheckoutuserproductsService {
       const result = await this.checkoutUserProductRepo.findOne({
         where: { checkoutId: checkoutId },
       });
+      if (result) return result;
+      else return null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async getAllCheckoutsByUserId(userid: number) {
+    try {
+      const result = await this.checkoutUserProductRepo.find({
+        where: { userId: userid },
+      });
+
       if (result) return result;
       else return null;
     } catch (error) {

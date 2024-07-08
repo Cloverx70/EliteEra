@@ -5,6 +5,7 @@ import { updateUserDto } from './dtos/UpdateUser.dto';
 import * as bcrypt from 'bcrypt';
 import { Users } from 'src/entities/entities/Users';
 import { updateUserCartDto } from './dtos/UpdateUserCart.dto';
+import { stringify } from 'querystring';
 
 @Injectable()
 export class UserService {
@@ -50,6 +51,25 @@ export class UserService {
       return user;
     } catch (error) {
       console.error(error);
+    }
+  }
+  async updateUserProfilePicByURL(id: number, url: string) {
+    try {
+      const user = await this.userRepo.findOne({ where: { userId: id } });
+
+      if (!user) {
+        throw new Error(`User with ID ${id} not found`);
+      }
+
+      user.userpfp = url;
+      console.log(`Updated user profile pic URL: ${user.userpfp}`);
+
+      await this.userRepo.save(user);
+
+      return user;
+    } catch (error) {
+      console.error('Error updating user profile pic:', error);
+      throw new Error('Unable to update user profile pic');
     }
   }
 }

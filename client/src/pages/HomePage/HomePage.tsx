@@ -12,7 +12,7 @@ const HomePage = () => {
   if (statusLoading) return <HeroSetionSkeleton />;
 
   return (
-    <section>
+    <section className="overflow-x-hidden">
       <HeroSection />
       <Categories />
       <Featured />

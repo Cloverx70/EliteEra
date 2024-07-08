@@ -13,7 +13,7 @@ export class Users {
   @Column('varchar', {
     name: 'user_pfp',
     unique: false,
-    length: 200,
+    length: 900,
     default: '',
   })
   userpfp: string | null;
@@ -38,4 +38,16 @@ export class Users {
 
   @Column('datetime', { name: 'birthdate' })
   birthdate: Date;
+
+  @Column('int', { name: 'total_spendings', default: 0 })
+  totalSpendings: number;
+
+  @Column('int', { name: 'ongoing_orders', default: 0 })
+  ongoingOrders: number;
+
+  @Column('int', { name: 'completed_orders', default: 0 })
+  completedOrders: number;
+
+  @Column('int', { name: 'cancelled_orders', default: 0 })
+  cancelledOrders: number;
 }

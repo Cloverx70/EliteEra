@@ -1,18 +1,20 @@
-import { fetchStatus } from "@/api";
+import { fetchGetUserById, fetchStatus } from "@/api";
 import { UserData } from "@/interfaces";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserInfo } from "os";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 type StatusContextValue = {
+  isAdmin: boolean;
   Status: UserData | null;
   statusSuccess: boolean;
   statusError: boolean;
   statusPending: boolean;
   statusLoading: boolean;
+  refetchStatus: () => void;
   setStatus: React.Dispatch<
     React.SetStateAction<{
-      addressone: string;
+      addressOne: string;
       addresstwo: string;
       email: string;
       fullname: string;
@@ -30,8 +32,6 @@ export const MyStatusContext = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [Status, setStatus] = useState<UserData | null>(null);
-
   const client = useQueryClient();
   const {
     data,
@@ -39,24 +39,30 @@ export const MyStatusContext = ({
     isError: statusError,
     isLoading: statusLoading,
     isPending: statusPending,
+    refetch: refetchStatus,
   } = useQuery({
     queryKey: ["status"],
     queryFn: async () => await fetchStatus(localStorage.getItem("token")),
   });
-  useEffect(() => {
-    function assignStatus() {
-      if (data) setStatus(data);
-    }
-    assignStatus();
-  }, [data]);
+
+  console.log(data?.userId);
+
+  const { data: Status } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => await fetchGetUserById(data?.userId!),
+    enabled: !!data?.userId,
+  });
+
+  const isAdmin = data?.isAdmin;
 
   const value = {
-    setStatus,
     Status,
     statusSuccess,
     statusError,
     statusLoading,
     statusPending,
+    isAdmin,
+    refetchStatus,
   };
 
   return (

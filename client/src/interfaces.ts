@@ -1,6 +1,6 @@
 export interface UserData {
-  addressone: string;
-  addresstwo: string;
+  addressOne: string;
+  addressTwo: string;
   email: string;
   fullname: string;
   exp: number;
@@ -8,6 +8,11 @@ export interface UserData {
   isAdmin: boolean;
   userId: number;
   username: string;
+  userpfp: string | "";
+  totalSpendings: number;
+  ongoingOrders: number;
+  completedOrders: number;
+  cancelledOrders: number;
 }
 export interface IUserCheckout {
   checkoutId: number;
@@ -26,6 +31,10 @@ export interface IUserCheckout {
   orderPhone: number;
   bringChange: number;
   deliveryStatus: string;
+  orderStatus: string;
+  createdAt: Date;
+  orderAddress: string;
+  productIds: { [key: string]: number };
 }
 
 export interface Icheckout {

@@ -29,4 +29,13 @@ export class UserController {
   async updateUserById(id: number, @Body() req: updateUserDto) {
     return await this.userService.updateUserById(id, req);
   }
+
+  @Post('update-user-pfp-by-id/:id')
+  async updateUserPfpById(
+    @Param('id') id: number,
+    @Body() body: { url: string },
+  ) {
+    const { url } = body;
+    return await this.userService.updateUserProfilePicByURL(id, url);
+  }
 }
