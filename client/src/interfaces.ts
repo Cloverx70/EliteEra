@@ -14,6 +14,15 @@ export interface UserData {
   completedOrders: number;
   cancelledOrders: number;
 }
+
+export interface IProductVariant {
+  variantId: number;
+  productId: number;
+  VariantName: string;
+  VariantDetails: { [key: string]: string };
+  VariantType: string;
+}
+
 export interface IUserCheckout {
   checkoutId: number;
   userId: number;
@@ -35,6 +44,7 @@ export interface IUserCheckout {
   createdAt: Date;
   orderAddress: string;
   productIds: { [key: string]: number };
+  productImages: { [key: string]: string };
 }
 
 export interface Icheckout {
@@ -109,6 +119,7 @@ export interface Istatistics {
   totalUsers: number;
   totalProducts: number;
   totalPurchases: number;
+  totalOrders: number;
 }
 
 export interface Ireviews {

@@ -12,4 +12,6 @@ export class statistics {
   totalProducts: number;
   @Column('int', { name: 'totalpurchases', unique: false, default: 0 })
   totalPurchases: number;
+  @Column('int', { name: 'totalorders', unique: false, default: 0 })
+  totalOrders: number;
 }

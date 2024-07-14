@@ -14,6 +14,8 @@ import { Products } from 'src/entities/entities/Products';
 import { promocode } from 'src/entities/entities/promocode';
 import { getCheckoutDto } from './dtos/getCheckout.dto';
 import { use } from 'passport';
+import { statistics } from 'src/entities/entities/statistics';
+import { StatisticsService } from 'src/statistics/statistics.service';
 
 @Injectable()
 export class CheckoutuserproductsService {
@@ -28,6 +30,7 @@ export class CheckoutuserproductsService {
     private readonly productRepo: Repository<Products>,
     @InjectRepository(promocode)
     private readonly promocodeRepo: Repository<promocode>,
+    private readonly statService: StatisticsService,
   ) {}
   async Checkout(checkout: CheckoutDto) {
     try {
@@ -76,6 +79,18 @@ export class CheckoutuserproductsService {
         ? productsPrice - productsPrice * (promocode.percentage / 100)
         : productsPrice;
 
+      const ProductPictures: { [key: string]: string } = {};
+
+      const prodidsForPics = Object.values(productIds);
+
+      prodidsForPics.forEach(async (element) => {
+        const product = await this.productRepo.findOne({
+          where: { productId: element },
+        });
+
+        [(ProductPictures[product.productTitle] = product.productPicture)];
+      });
+
       const UserCheckout = this.checkoutUserProductRepo.create({
         checkoutId: Math.floor(Math.random() * 10000) + 1000,
         userId: checkout.userId,
@@ -100,10 +115,22 @@ export class CheckoutuserproductsService {
         createdAt: new Date(),
         productIds,
         orderAddress: checkout.orderAddress,
+        productImages: ProductPictures,
       });
 
       user.totalSpendings += UserCheckout.productPriceAfterDiscount;
       user.ongoingOrders += 1;
+
+      const CreateStatsParams = {
+        statId: 0,
+        TotalEarnings: productPriceAfterDiscount,
+        TotalPurchases: productPriceAfterDiscount,
+        TotalUsers: 0,
+        TotalProducts: 0,
+        TotalOrders: 0,
+      };
+
+      this.statService.createStatistics(CreateStatsParams);
 
       await this.userRepo.save(user); // Update existing user
       await this.checkoutUserProductRepo.save(UserCheckout); // Save new checkout entity
@@ -165,6 +192,15 @@ export class CheckoutuserproductsService {
     } catch (error) {
       console.error(error);
       return null;
+    }
+  }
+
+  async getAllCheckouts() {
+    try {
+      const checkouts = await this.checkoutUserProductRepo.find();
+      if (checkouts) return checkouts;
+    } catch (error) {
+      console.error(error);
     }
   }
 }

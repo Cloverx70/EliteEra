@@ -14,67 +14,45 @@ export class BoughtTogetherService {
     private readonly ProductRepo: Repository<Products>,
   ) {}
 
-  async getAllBTogetherProductsByProductId(productId: number) {
+  async updateBtogetherProds(BtogetherId: number, ProductIds: number[]) {
     try {
-      const BtogetherProducts = await this.BtogetherProductRepo.find({
-        where: { productId: productId },
+      const btogether = await this.BtogetherProductRepo.findOne({
+        where: { boughtTogetheProductId: BtogetherId },
       });
 
-      if (BtogetherProducts) return BtogetherProducts;
-      else return null;
+      const ids: { [key: string]: number } = {};
+      ProductIds.forEach((element) => {
+        if (!ids[element]) {
+          ids[element] = element;
+        }
+      });
+
+      btogether.boughtTogetherProductIds = ids;
     } catch (error) {
       console.error(error);
     }
   }
 
-  async addBTogetherProductByProductId(productid: number) {
+  async getBtogetherProducts(BtogetherId: number) {
     try {
-      if (await this.ProductRepo.findOne({ where: { productId: productid } })) {
-        const BtogetherProduct = this.BtogetherProductRepo.create({
-          boughtTogetheProductId: Math.floor(Math.random() * 100303) + 103000,
-          productId: productid,
+      const btogether = await this.BtogetherProductRepo.findOne({
+        where: { boughtTogetheProductId: BtogetherId },
+      });
+
+      const products = [];
+      const prodids = Object.values(btogether.boughtTogetherProductIds);
+
+      for (let i = 0; i < prodids.length; i++) {
+        const product = await this.ProductRepo.findOne({
+          where: { productId: prodids[i] },
         });
+        if (product) products.push(product);
+      }
+      console.log(products);
 
-        await this.BtogetherProductRepo.save(BtogetherProduct);
-
-        return BtogetherProduct;
-      } else return null;
+      return products;
     } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async removeBTogetherProducByProductIdAndBtogetherId(
-    prodId: number,
-    btogetherId: number,
-  ) {
-    try {
-      const BtogetherProd = await this.BtogetherProductRepo.findOne({
-        where: { boughtTogetheProductId: btogetherId, productId: prodId },
-      });
-
-      await this.BtogetherProductRepo.remove(BtogetherProd);
-
-      if (BtogetherProd) return BtogetherProd;
-      else return null;
-    } catch (error) {
-      console.error;
-    }
-  }
-
-  async updateBTogetherProductByProductIdAndBtogetherId(
-    prodid: number,
-    btogetherId: number,
-    newprodid: number,
-  ) {
-    try {
-      const btogetherprod = await this.BtogetherProductRepo.findOne({
-        where: { productId: prodid, boughtTogetheProductId: btogetherId },
-      });
-
-      btogetherprod.productId = newprodid;
-    } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   }
 }

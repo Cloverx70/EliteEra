@@ -13,6 +13,78 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useStatus } from "./contexts/statusContext";
 
+// Variants Route :
+
+export const fetchGetVariantsByProductId = async (id: number) => {
+  try {
+    const response = await axios.post(
+      `variant/get-variants-by-product-id/${id}`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+// Bought Together Products Route :
+
+export const fetchGetBtogetherProducts = async (id: number) => {
+  try {
+    const response = await axios.post(
+      `bought-together/get-btogether-by-id/${id}`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const fetchUpdateBtogetherProducts = async (
+  BtogetherId: number,
+  productIds: number[]
+) => {
+  try {
+    const response = await axios.post(
+      `bought-together/update-btogether-by-id/${BtogetherId}`,
+      { productIds },
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
+};
+// User Route :
+
+export const fetchGetAllUsers = async () => {
+  try {
+    const response = await axios.post(
+      "user/get-all-users",
+      {},
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 //Category Route :
 
 export const fetchGetCategoryProductByCategoryName = async (name: string) => {
@@ -50,6 +122,23 @@ export const fetchCreateCategory = async (name: string) => {
 };
 
 //Checkout Route :
+
+export const fetchGetAllCheckouts = async () => {
+  try {
+    const response = await axios.post(
+      "checkoutuserproducts/get-all-checkouts",
+      {},
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const fetchGetAllCheckoutsByUserId = async (userid: number) => {
   try {
     const response = await axios.post(
@@ -144,11 +233,59 @@ export const fetchCheckoutByUserProductIdAndUserId = async (
 
 //Statistics Route :
 
-export const fetchGetStat = async (status: UserData) => {
+export const fetchGetLatestStats = async () => {
   try {
-    const response: AxiosResponse<Istatistics> = await axios.post<Istatistics>(
-      "statistics/get-stats",
-      { status: status },
+    const response: AxiosResponse<Istatistics[]> = await axios.post<
+      Istatistics[]
+    >(
+      "statistics/get-latest-stats",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const fetchCreateStats = async (
+  totalEarnings: number,
+  totalOrders: number,
+  totalPurchases: number,
+  totalUsers: number,
+  totalProducts: number
+) => {
+  try {
+    const response: AxiosResponse = await axios.post(
+      "statistics/create-stats",
+      {
+        TotalEarnings: totalEarnings,
+        TotalPurchases: totalPurchases,
+        TotalUsers: totalUsers,
+        TotalProducts: totalProducts,
+        TotalOrders: totalOrders,
+      },
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const fetchGetAlltStats = async () => {
+  try {
+    const response = await axios.post(
+      "statistics/get-all-stats",
+      {},
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

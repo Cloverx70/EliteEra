@@ -1,45 +1,26 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { BoughtTogetherService } from './bought-together.service';
+import { jwtguard } from 'src/auth/guards/JWTguard';
+import { adminGuard } from 'src/admin/guards/adminGuard';
 
+@UseGuards(jwtguard, adminGuard)
 @Controller('bought-together')
 export class BoughtTogetherController {
   constructor(private readonly BTogetherService: BoughtTogetherService) {}
 
-  @Post('get-all-btogether-products-by-product-id/:id')
-  async getAllBTogetherProductsByProductId(@Param('id') prodid: number) {
-    return await this.BTogetherService.getAllBTogetherProductsByProductId(
-      prodid,
-    );
+  @Post('get-btogether-by-id/:id')
+  async getBtogetherById(@Param('id') btogetherId: number) {
+    return await this.BTogetherService.getBtogetherProducts(btogetherId);
   }
 
-  @Post('add-btogether-products-by-product-id/:id')
-  async addBTogetherProductByProductId(@Param('id') prodid: number) {
-    return await this.BTogetherService.addBTogetherProductByProductId(prodid);
-  }
-
-  @Post('remove-btogether-product-by-product-id-and-btogether-id')
-  async removeBTogetherProducByProductIdAndBtogetherId(
-    @Body()
-    prodid: number,
-    Btogetherid: number,
+  @Post('update-btogether-by-id/:id')
+  async updateBtogetherById(
+    @Param('id') btogetherId: number,
+    @Body() prodIds: number[],
   ) {
-    return await this.BTogetherService.removeBTogetherProducByProductIdAndBtogetherId(
-      prodid,
-      Btogetherid,
-    );
-  }
-
-  @Post('update-btogether-product-by-product-id-and-btogether-id')
-  async updateBTogetherProductByProductIdAndBtogetherId(
-    @Body()
-    prodid: number,
-    btogetherId: number,
-    newprodid: number,
-  ) {
-    return await this.BTogetherService.updateBTogetherProductByProductIdAndBtogetherId(
-      prodid,
+    return await this.BTogetherService.updateBtogetherProds(
       btogetherId,
-      newprodid,
+      prodIds,
     );
   }
 }

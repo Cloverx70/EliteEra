@@ -11,8 +11,8 @@ export class Products {
   @Column('int', { name: 'collection_id', unique: false })
   collectionId: number;
 
-  @Column('int', { name: 'variant_id', unique: true })
-  variantId: number;
+  @Column('json', { name: 'variant_id', nullable: true })
+  variantIds: { [key: string]: number };
 
   @Column('int', { name: 'category_id', unique: false })
   categoryId: number;

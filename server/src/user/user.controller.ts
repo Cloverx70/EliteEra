@@ -4,12 +4,14 @@ import { updateUserDto } from './dtos/UpdateUser.dto';
 import { Users } from 'src/entities/entities/Users';
 import { jwtguard } from 'src/auth/guards/JWTguard';
 import { updateUserCartDto } from './dtos/UpdateUserCart.dto';
+import { adminGuard } from 'src/admin/guards/adminGuard';
 
 @UseGuards(jwtguard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UseGuards(jwtguard, adminGuard)
   @Post('get-all-users')
   async getAllUsers(): Promise<Users[]> {
     return await this.userService.getAllUsers();

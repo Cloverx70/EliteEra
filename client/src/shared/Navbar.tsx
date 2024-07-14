@@ -37,7 +37,11 @@ import { CartItemsSkeleton } from "@/Skeletons/CartItemsSkeleton.1";
 import { FaShoppingCart } from "react-icons/fa";
 import SecondaryNavBar from "@/components/EliteEraComponents/SecondaryNavBar";
 
-const Navbar = () => {
+type NavProps = {
+  NavBgColor: string;
+};
+
+const Navbar = ({ NavBgColor }: NavProps) => {
   const client = useQueryClient();
   const { Status, setStatus, statusLoading } = useStatus();
   console.log(Status);
@@ -97,7 +101,7 @@ const Navbar = () => {
   };
 
   return (
-    <section className="w-full pl-10 pr-10 text-white">
+    <section className={`${NavBgColor}  w-full pl-10 pr-10 `}>
       <div className="flex py-6 justify-between items-center">
         <div className="flex custom-mobile:w-[499px] custom-mobile:justify-between custom-mobile:items-center">
           <p
@@ -106,7 +110,17 @@ const Navbar = () => {
             }}
             className="font-bold text-2xl sm:text-xl font-Poppins cursor-pointer"
           >
-            ELI<span className="text-custom-light-purple">TE E</span>RA
+            ELI
+            <span
+              className={`${
+                location.pathname === "/admin"
+                  ? " text-white"
+                  : " text-custom-light-purple"
+              }`}
+            >
+              TE E
+            </span>
+            RA
           </p>
           <div className="sm:hidden md:hidden lg:hidden xl:hidden 2xl:hidden">
             <CgMenu size={23} className="font-bold" />
@@ -189,10 +203,12 @@ const Navbar = () => {
                       >
                         <SecondaryNavBar />
                       </SheetContent>
+                      <SheetTrigger>
+                        <p className="md:text-xs sm:hidden hover:text-custom-light-purple transition-all delay-100 ease-in-out cursor-pointer">
+                          {Status?.username}
+                        </p>
+                      </SheetTrigger>
                     </Sheet>
-                    <p className="md:text-xs sm:hidden hover:text-custom-light-purple transition-all delay-100 ease-in-out cursor-pointer">
-                      {Status?.username}
-                    </p>
                     <div className="w-[1px] h-[20px] bg-white/30" />
                     <p
                       onClick={handleLogout}
@@ -218,11 +234,21 @@ const Navbar = () => {
               <div className="w-[1px] h-[20px] bg-white/30" />
               <Sheet>
                 <SheetTrigger>
-                  <div className="w-7 h-7 rounded-full cursor-pointer text-center bg-custom-light-purple">
+                  <div
+                    className={`${
+                      location.pathname === "/admin"
+                        ? "bg-white text-custom-light-purple"
+                        : ""
+                    } w-7 h-7 rounded-full cursor-pointer text-center bg-custom-light-purple`}
+                  >
                     <p className="text-xs font-bold pt-1.5 flex items-center justify-center">
                       {cartloading ? <Spinner /> : UserCart?.cartItemsNumber}
                     </p>
-                    <p className="text-sm font-bold mt-5 rotate-90 hover:text-custom-light-purple transition-all delay-100 ease-in-out ">
+                    <p
+                      className={`${
+                        location.pathname === "/admin" ? "hidden" : " "
+                      } text-sm font-bold  mt-5 rotate-90 hover:text-custom-light-purple transition-all delay-100 ease-in-out`}
+                    >
                       {cartloading ? <Spinner /> : "$" + UserCart?.cartTotal}
                     </p>
                   </div>

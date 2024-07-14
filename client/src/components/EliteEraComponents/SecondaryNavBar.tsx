@@ -40,6 +40,7 @@ const NavigationCards = ({ Status, isAdmin }: NavigationCardProps) => {
           <p className=" text-sm">Account Management</p>
         </div>
         <div
+          onClick={() => navigate(`/admin`)}
           className={`${
             !isAdmin ? "hidden" : ""
           } w-[25%] h-full gap-2 bg-custom-light-purple  hover:bg-custom-ke7li transition-all delay-100 ease-linear cursor-pointer  flex justify-center items-center`}

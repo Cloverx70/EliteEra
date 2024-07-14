@@ -129,4 +129,7 @@ export class CheckoutUserProduct {
     nullable: true,
   })
   createdAt: Date;
+
+  @Column('json', { name: 'product_images', nullable: true, unique: false })
+  productImages: { [key: string]: string } | null;
 }

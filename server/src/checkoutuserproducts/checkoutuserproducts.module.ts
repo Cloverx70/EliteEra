@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { CheckoutuserproductsController } from './checkoutuserproducts.controller';
 import { CheckoutuserproductsService } from './checkoutuserproducts.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,6 +7,8 @@ import { Users } from 'src/entities/entities/Users';
 import { CheckoutUserProduct } from 'src/entities/entities/CheckoutUserProudct';
 import { Products } from 'src/entities/entities/Products';
 import { Userproducts } from 'src/entities/entities/Userproducts';
+import { StatisticsService } from 'src/statistics/statistics.service';
+import { StatisticsModule } from 'src/statistics/statistics.module';
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { Userproducts } from 'src/entities/entities/Userproducts';
       Products,
       Userproducts,
     ]),
+    forwardRef(() => StatisticsModule),
   ],
   controllers: [CheckoutuserproductsController],
   providers: [CheckoutuserproductsService],

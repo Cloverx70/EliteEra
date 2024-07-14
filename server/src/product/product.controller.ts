@@ -3,6 +3,7 @@ import { ProductService } from './product.service';
 import { Products } from 'src/entities/entities/Products';
 import { Users } from 'src/entities/entities/Users';
 import { adminGuard } from 'src/admin/guards/adminGuard';
+import { addProductDto } from './Dtos/addPoduct.dto';
 
 @Controller('product')
 export class ProductController {
@@ -19,7 +20,7 @@ export class ProductController {
   }
 
   @Post('add-product')
-  async addProduct(@Body() req: Products): Promise<Products> {
+  async addProduct(@Body() req: addProductDto): Promise<Products> {
     return await this.productService.addProduct(req);
   }
   @Post('remove-product-by-id/:id')

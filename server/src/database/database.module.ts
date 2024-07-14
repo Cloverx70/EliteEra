@@ -10,11 +10,12 @@ import { Newsletter } from 'src/entities/entities/NewsLetter';
 import { Cart } from 'src/entities/entities/Cart';
 import { BtogetherProduct } from 'src/entities/entities/Btogether';
 import { review } from 'src/entities/entities/review';
-import { productvariants } from 'src/entities/entities/productVariants';
+
 import { statistics } from 'src/entities/entities/statistics';
 import { CheckoutUserProduct } from '../entities/entities/CheckoutUserProudct';
 import { promocode } from 'src/entities/entities/promocode';
 import { Category } from 'src/entities/entities/Category';
+import { Variants } from 'src/entities/entities/Variant';
 
 @Module({
   imports: [
@@ -37,7 +38,7 @@ import { Category } from 'src/entities/entities/Category';
         Cart,
         BtogetherProduct,
         review,
-        productvariants,
+        Variants,
         statistics,
         CheckoutUserProduct,
         promocode,

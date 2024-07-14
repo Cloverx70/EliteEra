@@ -26,6 +26,11 @@ const App = () => {
   const footerBgColor =
     location.pathname === "/" ? "" : "bg-custom-light-purple border-none";
 
+  const navBgColor =
+    location.pathname === "/admin"
+      ? " text-white bg-custom-light-purple"
+      : " text-white ";
+
   return (
     <>
       {location.pathname === "/login" ||
@@ -34,7 +39,7 @@ const App = () => {
       location.pathname === "/profile" ? (
         ""
       ) : (
-        <Navbar />
+        <Navbar NavBgColor={navBgColor} />
       )}
 
       <Routes>

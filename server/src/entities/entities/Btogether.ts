@@ -11,4 +11,11 @@ export class BtogetherProduct {
 
   @Column('int', { name: 'product_id', unique: false, nullable: false })
   productId: number;
+
+  @Column('json', {
+    name: 'bought-together-product-ids',
+    unique: false,
+    nullable: false,
+  })
+  boughtTogetherProductIds: { [key: string]: number };
 }

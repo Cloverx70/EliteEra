@@ -3,6 +3,7 @@ import { CheckoutuserproductsService } from './checkoutuserproducts.service';
 import { CheckoutDto } from './dtos/checkout.dto';
 import { jwtguard } from 'src/auth/guards/JWTguard';
 import { getCheckoutDto } from './dtos/getCheckout.dto';
+import { adminGuard } from 'src/admin/guards/adminGuard';
 
 @UseGuards(jwtguard)
 @Controller('checkoutuserproducts')
@@ -15,21 +16,30 @@ export class CheckoutuserproductsController {
   async Checkout(@Body() checkoutDto: CheckoutDto) {
     return await this.CheckoutUserProductService.Checkout(checkoutDto);
   }
+  @UseGuards(jwtguard, adminGuard)
   @Post('get-checkout-by-user-product-and-user-id')
   async getCheckout(@Body() getCheckoutDto: getCheckoutDto) {
     return await this.CheckoutUserProductService.getCheckout(getCheckoutDto);
   }
 
+  @UseGuards(jwtguard, adminGuard)
   @Post('get-checkout-by-checkout-id/:checkoutid')
   async getCheckoutByCheckoutId(@Param('checkoutid') checkoutId: number) {
     return await this.CheckoutUserProductService.getCheckoutByCheckoutId(
       checkoutId,
     );
   }
+
+  @UseGuards(jwtguard, adminGuard)
   @Post('get-all-checkouts-by-user-id/:userid')
   async getAllCheckoutsByUserId(@Param('userid') userid: number) {
     return await this.CheckoutUserProductService.getAllCheckoutsByUserId(
       userid,
     );
+  }
+  @UseGuards(jwtguard, adminGuard)
+  @Post('get-all-checkouts')
+  async getAllChekcouts() {
+    return await this.CheckoutUserProductService.getAllCheckouts();
   }
 }
