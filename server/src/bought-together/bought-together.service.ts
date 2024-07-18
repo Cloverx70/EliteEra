@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { privateDecrypt } from 'crypto';
 import { BtogetherProduct } from 'src/entities/entities/Btogether';
 import { Products } from 'src/entities/entities/Products';
 import { Repository } from 'typeorm';
+import { In } from 'typeorm';
 
 @Injectable()
 export class BoughtTogetherService {
@@ -13,23 +14,36 @@ export class BoughtTogetherService {
     @InjectRepository(Products)
     private readonly ProductRepo: Repository<Products>,
   ) {}
-
-  async updateBtogetherProds(BtogetherId: number, ProductIds: number[]) {
+  async updateBtogetherProds(ProdId: number, ProductIds: number[]) {
     try {
       const btogether = await this.BtogetherProductRepo.findOne({
-        where: { boughtTogetheProductId: BtogetherId },
+        where: { productId: ProdId },
       });
 
-      const ids: { [key: string]: number } = {};
-      ProductIds.forEach((element) => {
-        if (!ids[element]) {
-          ids[element] = element;
+      if (!btogether) {
+        throw new Error(`No record found for Prodis ${ProdId}`);
+      }
+
+      const ProductIdsArray = Object.values(btogether.boughtTogetherProductIds);
+      for (let i = 0; i < ProductIds.length; i++) {
+        if (
+          Object.values(btogether.boughtTogetherProductIds).includes(
+            ProductIds[i],
+          )
+        ) {
+          return;
+        } else {
+          ProductIdsArray.push(ProductIds[i]);
         }
-      });
+      }
 
-      btogether.boughtTogetherProductIds = ids;
+      btogether.boughtTogetherProductIds = ProductIds;
+
+      await this.BtogetherProductRepo.save(btogether);
+
+      return btogether;
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   }
 
@@ -39,15 +53,18 @@ export class BoughtTogetherService {
         where: { boughtTogetheProductId: BtogetherId },
       });
 
-      const products = [];
+      if (!btogether) {
+        throw new Error(
+          `No record found for boughtTogetheProductId ${BtogetherId}`,
+        );
+      }
+
       const prodids = Object.values(btogether.boughtTogetherProductIds);
 
-      for (let i = 0; i < prodids.length; i++) {
-        const product = await this.ProductRepo.findOne({
-          where: { productId: prodids[i] },
-        });
-        if (product) products.push(product);
-      }
+      const products = await this.ProductRepo.find({
+        where: { productId: In(prodids) },
+      });
+
       console.log(products);
 
       return products;

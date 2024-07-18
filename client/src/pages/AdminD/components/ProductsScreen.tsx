@@ -4,12 +4,22 @@ import {
   fetchGetBtogetherProducts,
   fetchGetProductById,
   fetchGetVariantsByProductId,
+  fetchUpdateBtogetherProducts,
 } from "@/api";
 import { Iproduct, IProductVariant } from "@/interfaces";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TiStarFullOutline } from "react-icons/ti";
 import { FaPlus } from "react-icons/fa";
-import { array } from "zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { set } from "zod";
+import { createToast } from "@/shared/Toast";
 
 const ProductsScreen = () => {
   const [ProductState, setProductState] = useState({
@@ -156,48 +166,119 @@ const ProductEdit = ({ editProductId }: ProductEditProps) => {
     queryFn: async () => await fetchGetProductById(editProductId!),
   });
 
-  const [VariantNumber, setVariantNumber] = useState(0);
+  const client = useQueryClient();
 
-  type AddVariantFormProps = {
-    VariantNumber: number;
+  // Bought Together Products
+
+  const { data: btogetherProducts } = useQuery({
+    queryKey: ["btogetherprods"],
+    queryFn: async () =>
+      await fetchGetBtogetherProducts(product?.btoghetherId!),
+  });
+
+  const [AddBoughtTogetherProductScreen, setAddBoughtTogetherProductScreen] =
+    useState(false);
+
+  const {
+    data: allproducts,
+    isPending: allproductsPending,
+    isLoading: allproductsLoading,
+  } = useQuery({
+    queryKey: ["allproducts"],
+    queryFn: async () => await fetchGetAllProducts(),
+    enabled: !AddBoughtTogetherProductScreen,
+  });
+
+  const [AddBTogetherProducts, setAddBTogetherProducts] = useState<number[]>(
+    []
+  );
+
+  const handleOnAddBoughtTogetherProduct = (id: number) => {
+    setAddBTogetherProducts((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
   };
 
-  const AddVarientValue = () => {
-    const [VariantValuesNumber, setVariantValuesNumber] = useState(0);
-
-    return (
-      <div className=" flex items-center gap-2">
-        {Array.from({ length: VariantValuesNumber }, (_, index) => (
-          <input
-            type="text"
-            className="w-auto h-8 text-center bg-transparent border-2  border-custom-ke7li/20 rounded-sm"
-            placeholder="Variant Value"
-          />
-        ))}
-        <div
-          onClick={() => setVariantValuesNumber((prev) => prev + 1)}
-          className=" w-12 h-8  text-custom-ke7li bg-transparent border-2 border-custom-ke7li/20 rounded-sm py-2 px-3 text-xs flex items-center justify-center"
-        >
-          <FaPlus />
-        </div>
-      </div>
+  const handelOnSavingBtogetherProds = async (BTogetherId: number) => {
+    const res = await fetchUpdateBtogetherProducts(
+      BTogetherId,
+      AddBTogetherProducts
     );
+    console.log(AddBTogetherProducts);
+
+    if (res) {
+      client.invalidateQueries({ queryKey: ["product"] });
+      client.invalidateQueries({ queryKey: ["btogetherprods"] });
+      return createToast("Bought Together Product List Updated Successfully");
+    } else return createToast("Something went wrong please try again later...");
   };
 
-  const AddVariantForm = ({ VariantNumber }: AddVariantFormProps) => {
+  // Variants
+
+  const [VariantNumber, setVariantNumber] = useState(0);
+  const [variantValues, setVariantValues] = useState<Array<Array<string>>>([]);
+
+  const handleAddVariantValue = (variantIndex: number) => {
+    setVariantValues((prev) => {
+      const updated = [...prev];
+      updated[variantIndex] = [...(updated[variantIndex] || []), ""];
+      return updated;
+    });
+  };
+
+  const handleVariantValueChange = (
+    variantIndex: number,
+    valueIndex: number,
+    newValue: string
+  ) => {
+    setVariantValues((prev) => {
+      const updated = [...prev];
+      updated[variantIndex][valueIndex] = newValue;
+      return updated;
+    });
+  };
+
+  const AddVariantForm = ({ VariantNumber }: { VariantNumber: number }) => {
     return (
-      <div>
-        {Array.from({ length: VariantNumber }, (_, index) => (
-          <>
-            <div key={index} className=" flex items-center justify-start gap-2">
+      <div className=" flex flex-col gap-2">
+        {Array.from({ length: VariantNumber }, (_, variantIndex) => (
+          <div key={variantIndex} className=" flex gap-2">
+            <div className=" flex items-center justify-start gap-2">
               <input
                 type="text"
-                className="w-auto h-8 text-center bg-transparent border-2  border-custom-ke7li/20 rounded-sm"
+                className="w-auto h-8 text-xs text-center bg-transparent border-2 border-custom-ke7li/20 rounded-sm"
                 placeholder="Variant Name"
               />
             </div>
-            <AddVarientValue />
-          </>
+            <div className=" flex items-center gap-2">
+              {variantValues[variantIndex]?.map((value, valueIndex) => (
+                <input
+                  key={valueIndex}
+                  type="text"
+                  value={value}
+                  onChange={(e) =>
+                    handleVariantValueChange(
+                      variantIndex,
+                      valueIndex,
+                      e.target.value
+                    )
+                  }
+                  className="w-20 h-8 text-xs text-center bg-transparent border-2 border-custom-ke7li/20 rounded-sm"
+                  placeholder="value"
+                />
+              ))}
+              <div
+                onClick={() => handleAddVariantValue(variantIndex)}
+                className="w-12 h-8 text-custom-ke7li bg-transparent border-2 border-custom-ke7li/20 rounded-sm py-2 px-3 text-xs flex items-center justify-center"
+              >
+                <FaPlus />
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     );
@@ -233,12 +314,6 @@ const ProductEdit = ({ editProductId }: ProductEditProps) => {
       productFourthPicure: product?.productFourthPicure,
     });
   }, [product]);
-
-  const { data: btogetherProducts } = useQuery({
-    queryKey: ["btogetherprods"],
-    queryFn: async () =>
-      await fetchGetBtogetherProducts(product?.btoghetherId!),
-  });
 
   const { data: productVariants } = useQuery({
     queryKey: ["productvariants"],
@@ -394,6 +469,7 @@ const ProductEdit = ({ editProductId }: ProductEditProps) => {
             </div>
           );
         })}
+        <div className=" w-full h-[1px] bg-custom-ke7li/50 border-0 border-t-[2px]" />{" "}
         {VariantNumber > 0 && (
           <div>
             <AddVariantForm VariantNumber={VariantNumber} />
@@ -431,9 +507,72 @@ const ProductEdit = ({ editProductId }: ProductEditProps) => {
               </div>
             );
           })}
-          <div className="w-40 h-full  flex flex-col gap-2 p-5 items-center justify-center border border-custom-ke7li text-3xl  text-custom-ke7li ">
-            +<p className=" text-sm text-custom-ke7li">Add Product</p>
-          </div>
+          <Dialog onOpenChange={() => setAddBTogetherProducts([])}>
+            {" "}
+            <DialogTrigger>
+              <div className="w-40 h-full  flex flex-col gap-2 p-5 items-center justify-center border border-custom-ke7li text-3xl  text-custom-ke7li ">
+                +<p className=" text-sm text-custom-ke7li">Add Product</p>
+              </div>
+            </DialogTrigger>
+            <DialogContent className=" max-w-xl  p-5 outline-none ">
+              <DialogHeader className=" px-5 flex flex-col gap-10">
+                <p className=" text-black font-semibold text-start text-lg">
+                  Select Products To Add
+                </p>
+                <div className=" w-full grid grid-cols-3 justify-items-center gap-2 ">
+                  {allproductsLoading || allproductsPending ? (
+                    <p>Loading</p>
+                  ) : (
+                    allproducts?.map((item: Iproduct) => {
+                      return (
+                        <div
+                          onClick={() =>
+                            handleOnAddBoughtTogetherProduct(item.productId)
+                          }
+                          className={`${
+                            AddBTogetherProducts.includes(item?.productId)
+                              ? " bg-gray-200"
+                              : "bg-white "
+                          } w-40 flex flex-col cursor-pointer  border p-2`}
+                        >
+                          <div className=" h-32 w-32 object-center flex items-center justify-center">
+                            <img
+                              src={item?.productPicture}
+                              className=" w-full h-full object-contain "
+                              alt=""
+                            />
+                          </div>
+                          <div className=" flex flex-col justify-center items-start p-2">
+                            <p className=" text-black">
+                              {item?.productTitle
+                                .split(" ")
+                                .splice(0, 2)
+                                .join(" ")}
+                            </p>
+                            <p className=" text-xs text-custom-light-purple">
+                              $ {item?.productPrice}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+                <div className=" flex items-center justify-start">
+                  <DialogTrigger>
+                    <button
+                      onClick={() =>
+                        handelOnSavingBtogetherProds(product?.productId!)
+                      }
+                      className=" w-36 h-9 bg-custom-light-purple text-white"
+                    >
+                      Save
+                    </button>
+                  </DialogTrigger>
+                </div>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       <div className=" w-full p-5 flex justify-start items-center ">

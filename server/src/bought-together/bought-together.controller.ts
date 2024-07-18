@@ -15,12 +15,9 @@ export class BoughtTogetherController {
 
   @Post('update-btogether-by-id/:id')
   async updateBtogetherById(
-    @Param('id') btogetherId: number,
+    @Param('id') prodId: number,
     @Body() prodIds: number[],
   ) {
-    return await this.BTogetherService.updateBtogetherProds(
-      btogetherId,
-      prodIds,
-    );
+    return await this.BTogetherService.updateBtogetherProds(prodId, prodIds);
   }
 }

@@ -17,5 +17,5 @@ export class BtogetherProduct {
     unique: false,
     nullable: false,
   })
-  boughtTogetherProductIds: { [key: string]: number };
+  boughtTogetherProductIds: number[];
 }

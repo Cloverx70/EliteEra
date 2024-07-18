@@ -50,12 +50,12 @@ export const fetchGetBtogetherProducts = async (id: number) => {
 };
 
 export const fetchUpdateBtogetherProducts = async (
-  BtogetherId: number,
+  prodId: number,
   productIds: number[]
 ) => {
   try {
     const response = await axios.post(
-      `bought-together/update-btogether-by-id/${BtogetherId}`,
+      `bought-together/update-btogether-by-id/${prodId}`,
       { productIds },
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

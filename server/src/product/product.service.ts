@@ -59,7 +59,7 @@ export class ProductService {
       const BoughtTogetherProds = this.btogetherRepo.create({
         boughtTogetheProductId: Math.floor(Math.random() * 10000) + 1000,
         productId: product.productId,
-        boughtTogetherProductIds: {},
+        boughtTogetherProductIds: [],
       });
 
       product.btoghetherId = BoughtTogetherProds.boughtTogetheProductId;
