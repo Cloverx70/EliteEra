@@ -7,6 +7,7 @@ import { statistics } from 'src/entities/entities/statistics';
 
 import { Repository } from 'typeorm';
 import { addProductDto } from './Dtos/addPoduct.dto';
+import { updateProductDto } from './Dtos/updateProduct.dto';
 
 @Injectable()
 export class ProductService {
@@ -67,6 +68,42 @@ export class ProductService {
       await this.btogetherRepo.save(BoughtTogetherProds);
       await this.productRepo.save(product);
 
+      return product;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async updateProductById(id: number, req: updateProductDto) {
+    try {
+      console.log(req);
+      const product = await this.productRepo.findOne({
+        where: { productId: id },
+      });
+      product.productTitle = req.title;
+      product.productDescription = req.description;
+      product.productPrice = req.productPrice;
+      product.productStock = parseInt(req.stock);
+      product.productOrigin = req.origin;
+      product.productAbout = req.bgTitle;
+
+      const variants = await this.VariantRepo.find({
+        where: { productId: product.productId },
+      });
+
+      await this.VariantRepo.remove(variants);
+      for (let i = 0; i < req.variants.length; i++) {
+        const newVariant = this.VariantRepo.create({
+          variantId: req.variants[i].variantId,
+          productId: req.variants[i].prodid,
+          VariantName: req.variants[i].variantName,
+          VariantDetails: req.variants[i].variantDetails,
+          VariantType: req.variants[i].variantType,
+        });
+        await this.VariantRepo.save(newVariant);
+      }
+
+      await this.productRepo.save(product);
       return product;
     } catch (error) {
       console.error(error);

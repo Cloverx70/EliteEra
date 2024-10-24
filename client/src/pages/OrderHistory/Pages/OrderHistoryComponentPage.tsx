@@ -1,16 +1,21 @@
-import { fetchGetCheckoutByCheckoutId, fetchGetProductById } from "@/api";
+import {
+  fetchGetCheckoutByCheckoutId,
+  fetchGetProductById,
+  fetchUpdateCheckoutStatus,
+} from "@/api";
 import { useStatus } from "@/contexts/statusContext";
 import { Iproduct } from "@/interfaces";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
+import { FaBox, FaCheck } from "react-icons/fa6";
 import { IoIosArrowBack, IoMdClose } from "react-icons/io";
-import { MdOutlineSupportAgent } from "react-icons/md";
+import { MdDeliveryDining, MdOutlineSupportAgent } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import { object } from "zod";
 
 const OrderHistoryComponentPage = () => {
-  const {} = useStatus();
+  const { isAdmin } = useStatus();
 
   const { checkoutid } = useParams<{
     checkoutid: string;
@@ -93,6 +98,64 @@ const OrderHistoryComponentPage = () => {
     fetchProductPictures();
   }, [checkoutData]);
 
+  const client = useQueryClient();
+
+  const handleOnClickOrderReadyForDelivery = async () => {
+    const response = await fetchUpdateCheckoutStatus(
+      parseInt(checkoutid!),
+      "order getting ready for delivery",
+      "paid",
+      "in progress"
+    );
+
+    if (response)
+      client.invalidateQueries({
+        queryKey: ["usercheckout"],
+      });
+  };
+
+  const handleOnClickOrderPickedUp = async () => {
+    const response = await fetchUpdateCheckoutStatus(
+      parseInt(checkoutid!),
+      "order picked up",
+      "paid",
+      "in progress"
+    );
+
+    if (response)
+      client.invalidateQueries({
+        queryKey: ["usercheckout"],
+      });
+  };
+
+  const handleOnClickOrderDelivered = async () => {
+    const response = await fetchUpdateCheckoutStatus(
+      parseInt(checkoutid!),
+      "delivered",
+      "paid",
+      "completed"
+    );
+
+    if (response)
+      client.invalidateQueries({
+        queryKey: ["usercheckout"],
+      });
+  };
+
+  const handleOnClickCancel = async () => {
+    const response = await fetchUpdateCheckoutStatus(
+      parseInt(checkoutid!),
+      "cancelled",
+      "cancelled",
+      "cancelled"
+    );
+
+    if (response)
+      client.invalidateQueries({
+        queryKey: ["usercheckout"],
+      });
+  };
+
   return (
     <motion.section
       initial={{ opacity: 0 }}
@@ -138,17 +201,17 @@ const OrderHistoryComponentPage = () => {
         >
           {checkoutData?.orderStatus === "cancelled"
             ? "Cancelled"
-            : checkoutData?.paymentStatus === "unpaid" ||
+            : checkoutData?.paymentStatus === "unpaid" &&
               checkoutData?.orderStatus === "in progress"
             ? "Awaiting payment..."
             : checkoutData?.deliveryStatus ===
-                "order getting ready for delivery" ||
+                "order getting ready for delivery" &&
               checkoutData?.orderStatus === "in progress"
             ? "Your Order getting ready for delivery..."
-            : checkoutData?.deliveryStatus === "order picked up" ||
+            : checkoutData?.deliveryStatus === "order picked up" &&
               checkoutData?.orderStatus === "in progress"
             ? "Order picked up..."
-            : "Delivered"}
+            : "Order delivered"}
         </p>
 
         <motion.div
@@ -165,22 +228,28 @@ const OrderHistoryComponentPage = () => {
                 ? "bg-custom-light-purple"
                 : checkoutData?.orderStatus === "cancelled"
                 ? " bg-red-800"
-                : ""
+                : "bg-custom-light-purple"
             }`}
           />
           <div
             className={`w-1/4 h-full rounded-sm ${
-              checkoutData?.deliveryStatus ===
+              (checkoutData?.deliveryStatus ===
                 "order getting ready for delivery" &&
-              checkoutData.paymentStatus === "paid"
+                checkoutData.paymentStatus === "paid") ||
+              (checkoutData?.deliveryStatus === "order picked up" &&
+                checkoutData.paymentStatus === "paid") ||
+              (checkoutData?.deliveryStatus === "delivered" &&
+                checkoutData.paymentStatus === "paid")
                 ? "bg-custom-light-purple"
                 : "bg-custom-ke7li"
             }`}
           />
           <div
             className={`w-1/4 h-full rounded-sm ${
-              checkoutData?.deliveryStatus === "order picked up" &&
-              checkoutData.paymentStatus === "paid"
+              (checkoutData?.deliveryStatus === "order picked up" &&
+                checkoutData.paymentStatus === "paid") ||
+              (checkoutData?.deliveryStatus === "delivered" &&
+                checkoutData.paymentStatus === "paid")
                 ? "bg-custom-light-purple"
                 : "bg-custom-ke7li"
             } `}
@@ -198,7 +267,7 @@ const OrderHistoryComponentPage = () => {
           <p className=" text-sm text-custom-ke7li">Delivery Order</p>
           <p className=" text-lg text-black">
             {checkoutData?.orderStatus === "in progress"
-              ? "This order will be delivered soon. Thank You for choosing Elite Era..."
+              ? "This order is being processed and will be delivered soon. Thank You for choosing Elite Era..."
               : checkoutData?.orderStatus === "completed"
               ? "This order was delivered! Thank you for your shopping"
               : "This order was canceled! If it wasn't you, please let us know..."}
@@ -225,7 +294,33 @@ const OrderHistoryComponentPage = () => {
         >
           <MdOutlineSupportAgent size={25} color="white" /> Contact us
         </button>
-        <button className=" w-40 h-11 rounded-xl bg-red-800 flex items-center justify-center gap-2 text-white">
+        {isAdmin && (
+          <div className=" flex gap-3">
+            <button
+              onClick={handleOnClickOrderReadyForDelivery}
+              className=" auto h-11 rounded-xl px-2 bg-custom-light-purple flex items-center justify-center gap-2 text-white"
+            >
+              <MdDeliveryDining size={25} color="white" /> Order ready for
+              delivery
+            </button>
+            <button
+              onClick={handleOnClickOrderPickedUp}
+              className=" w-auto h-11 px-2 rounded-xl bg-custom-light-purple flex items-center justify-center gap-2 text-white"
+            >
+              <FaBox size={20} /> Order picked up
+            </button>
+            <button
+              onClick={handleOnClickOrderDelivered}
+              className=" w-auto h-11 px-2 rounded-xl bg-custom-light-purple flex items-center justify-center gap-2 text-white"
+            >
+              <FaCheck size={22} /> Order delivered
+            </button>
+          </div>
+        )}
+        <button
+          onClick={handleOnClickCancel}
+          className=" w-40 h-11 rounded-xl bg-red-800 flex items-center justify-center gap-2 text-white"
+        >
           <IoMdClose size={25} color="white" /> Cancel order
         </button>
       </motion.div>

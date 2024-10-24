@@ -26,17 +26,14 @@ export class ReviewsController {
       prodid,
     );
   }
-
   @Post('update-review-by-user-id-and-product-id')
   async updateReviewByUserIdAndProductId(
-    @Body()
-    uid: number,
-    prodid: number,
-    request: updateReviewDto,
+    @Body() body: { uid: number; pid: number; request: updateReviewDto },
   ) {
+    const { uid, pid, request } = body;
     return await this.reviewService.updateReviewByUserIdAndProductId(
       uid,
-      prodid,
+      pid,
       request,
     );
   }

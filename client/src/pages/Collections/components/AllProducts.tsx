@@ -3,6 +3,7 @@ import { AiFillPlusCircle } from "react-icons/ai";
 import { Iproduct } from "@/interfaces";
 import { GoChevronLeft, GoChevronRight } from "react-icons/go";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 type AllProductsProps = {
   products: Iproduct[];
@@ -17,6 +18,8 @@ const AllProducts: React.FC<AllProductsProps> = ({
 }) => {
   const [StartIdx, setStartIdx] = useState(0);
   const [EndIdx, setEndIdx] = useState(4);
+
+  const navigate = useNavigate();
 
   const handleNext = () => {
     if (EndIdx < products.length) {
@@ -54,6 +57,7 @@ const AllProducts: React.FC<AllProductsProps> = ({
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
             className=" cursor-pointer flex flex-col gap-3 justify-center hover:scale-105 transition-all delay-100 ease-in-out"
+            onClick={() => navigate(`/product/${item.productId}`)}
           >
             <div className="flex items-center justify-center">
               <img className="w-[210px]" src={item.productPicture} alt="" />

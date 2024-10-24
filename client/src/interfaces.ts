@@ -125,8 +125,12 @@ export interface Istatistics {
 export interface Ireviews {
   reviewId: number;
   productId: number;
+  userid: number;
   userPfp: string | null;
   username: string;
   rating: number;
   message: string;
+  dateCreated: Date;
+  downVotes: number;
+  upVotes: number;
 }

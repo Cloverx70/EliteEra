@@ -39,13 +39,18 @@ import SecondaryNavBar from "@/components/EliteEraComponents/SecondaryNavBar";
 
 type NavProps = {
   NavBgColor: string;
+  NavTextColorOnHover: string;
 };
 
-const Navbar = ({ NavBgColor }: NavProps) => {
+const Navbar = ({ NavBgColor, NavTextColorOnHover }: NavProps) => {
   const client = useQueryClient();
-  const { Status, setStatus, statusLoading } = useStatus();
-  console.log(Status);
-  const [Token, setToken] = useState("");
+  const {
+    Status,
+    statusLoading,
+    statusPending,
+    statusSuccess,
+    statusFetching,
+  } = useStatus();
 
   const {
     data: cartitems,
@@ -59,17 +64,8 @@ const Navbar = ({ NavBgColor }: NavProps) => {
 
   const { data: UserCart, refetch: refetchUserCart } = useQuery({
     queryKey: ["cart"],
-    queryFn: async () =>
-      await fetchGetUserCartByUserId(
-        Status!.userId,
-        localStorage.getItem("token")!
-      ),
+    queryFn: async () => await fetchGetUserCartByUserId(Status!.userId),
   });
-
-  useEffect(() => {
-    //@ts-ignore
-    setToken(localStorage.getItem("token"));
-  }, [localStorage.getItem("token")]);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -86,9 +82,13 @@ const Navbar = ({ NavBgColor }: NavProps) => {
     prodprice: number,
     qty: number
   ) => {
-    await fetchRemoveUserProduct(userproductid, userid, Token);
+    await fetchRemoveUserProduct(
+      userproductid,
+      userid,
+      localStorage.getItem("token")!
+    );
 
-    await fetchUpdateUserCartByUserId(userid, -prodprice, -qty, Token);
+    await fetchUpdateUserCartByUserId(userid, -prodprice, -qty);
 
     refetchUserCart();
     refetchCartItems();
@@ -113,7 +113,7 @@ const Navbar = ({ NavBgColor }: NavProps) => {
             ELI
             <span
               className={`${
-                location.pathname === "/admin"
+                location.pathname !== "/"
                   ? " text-white"
                   : " text-custom-light-purple"
               }`}
@@ -130,38 +130,34 @@ const Navbar = ({ NavBgColor }: NavProps) => {
         <div className="flex gap-7 text-sm font-semibold md:text-xs sm:text-xs custom-mobile:hidden">
           <p
             onClick={() => navigate("/products")}
-            className={` ${
-              location.pathname === "/products"
-                ? "text-custom-light-purple"
-                : ""
-            } cursor-pointer hover:text-custom-light-purple transition-all delay-100  ease-in-out`}
+            className={` ${NavTextColorOnHover} ${
+              location.pathname === "/products" ? " text-custom-dark-ke7li" : ""
+            } cursor-pointer  transition-all delay-100  ease-linear`}
           >
             Catalog
           </p>
           <p
             onClick={() => navigate("/collections")}
-            className={` ${
+            className={`${NavTextColorOnHover} ${
               location.pathname === "/collections"
-                ? "text-custom-light-purple"
+                ? "text-custom-dark-ke7li"
                 : ""
-            } cursor-pointer hover:text-custom-light-purple transition-all delay-100  ease-in-out`}
+            } cursor-pointer transition-all delay-100  ease-linear`}
           >
             Collections
           </p>
           <p
             onClick={() => navigate("/contactus")}
-            className={` ${
-              location.pathname === "/contactus"
-                ? "text-custom-light-purple"
-                : ""
-            } cursor-pointer hover:text-custom-light-purple transition-all delay-100  ease-in-out`}
+            className={` ${NavTextColorOnHover} ${
+              location.pathname === "/contactus" ? "text-custom-dark-ke7li" : ""
+            } cursor-pointer  transition-all delay-100  ease-linear`}
           >
             Contact
           </p>
           <p
-            className={` ${
+            className={` ${NavTextColorOnHover}${
               location.pathname === "/aboutus" ? "text-custom-light-purple" : ""
-            } cursor-pointer hover:text-custom-light-purple transition-all delay-100  ease-in-out`}
+            } cursor-pointer transition-all delay-100  ease-linear`}
           >
             About Us
           </p>
@@ -174,9 +170,9 @@ const Navbar = ({ NavBgColor }: NavProps) => {
         <div className="w-72 lg:w-5 md:hidden sm:hidden custom-mobile:hidden"></div>
         <div className="flex gap-10 sm:gap-4 md:gap-4 items-center custom-mobile:hidden">
           <div className="flex gap-3 text-sm font-semibold items-center">
-            {Token ? (
+            {localStorage.getItem("token") ? (
               <div className=" flex items-center gap-7">
-                {statusLoading ? (
+                {statusLoading || statusFetching ? (
                   <Spinner />
                 ) : (
                   <>
@@ -204,7 +200,9 @@ const Navbar = ({ NavBgColor }: NavProps) => {
                         <SecondaryNavBar />
                       </SheetContent>
                       <SheetTrigger>
-                        <p className="md:text-xs sm:hidden hover:text-custom-light-purple transition-all delay-100 ease-in-out cursor-pointer">
+                        <p
+                          className={`${NavTextColorOnHover} md:text-xs sm:hidden hover:text-custom-light-purple transition-all delay-100 ease-in-out cursor-pointer`}
+                        >
                           {Status?.username}
                         </p>
                       </SheetTrigger>
@@ -212,7 +210,7 @@ const Navbar = ({ NavBgColor }: NavProps) => {
                     <div className="w-[1px] h-[20px] bg-white/30" />
                     <p
                       onClick={handleLogout}
-                      className="md:text-xs sm:hidden hover:text-custom-light-purple transition-all delay-100 ease-in-out cursor-pointer"
+                      className={`${NavTextColorOnHover} md:text-xs sm:hidden  transition-all delay-100 ease-in-out cursor-pointer`}
                     >
                       Logout
                     </p>
@@ -229,17 +227,23 @@ const Navbar = ({ NavBgColor }: NavProps) => {
             )}
           </div>
 
-          {Token ? (
+          {localStorage.getItem("token") ? (
             <>
               <div className="w-[1px] h-[20px] bg-white/30" />
               <Sheet>
                 <SheetTrigger>
                   <div
                     className={`${
-                      location.pathname === "/admin"
-                        ? "bg-white text-custom-light-purple"
-                        : ""
-                    } w-7 h-7 rounded-full cursor-pointer text-center bg-custom-light-purple`}
+                      location.pathname == "/products" ||
+                      location.pathname == "/collections" ||
+                      location.pathname == "/contactus" ||
+                      /^\/orderhistory\/\d+$/.test(location.pathname) ||
+                      location.pathname === "/orderhistory" ||
+                      location.pathname === "/admin" ||
+                      location.pathname === "/profile"
+                        ? "bg-custom-dark-ke7li"
+                        : "bg-custom-light-purple"
+                    } w-7 h-7 rounded-full cursor-pointer text-center `}
                   >
                     <p className="text-xs font-bold pt-1.5 flex items-center justify-center">
                       {cartloading ? <Spinner /> : UserCart?.cartItemsNumber}

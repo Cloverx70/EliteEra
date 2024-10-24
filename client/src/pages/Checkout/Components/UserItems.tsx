@@ -28,11 +28,7 @@ const UserItems = () => {
 
   const { data: UserCart } = useQuery({
     queryKey: ["cart"],
-    queryFn: async () =>
-      await fetchGetUserCartByUserId(
-        Status!.userId,
-        localStorage.getItem("token")!
-      ),
+    queryFn: async () => await fetchGetUserCartByUserId(Status!.userId),
   }) as UseQueryResult<Icart, Error>;
   const navigate = useNavigate();
 
@@ -107,11 +103,7 @@ const Items = ({ Status }: any) => {
     isError: carterror,
   } = useQuery({
     queryKey: ["CartItems"],
-    queryFn: async () =>
-      await fetchGetAllUserProducts(
-        Status!.userId,
-        localStorage.getItem("token")!
-      )!,
+    queryFn: async () => await fetchGetAllUserProducts(Status!.userId),
   });
 
   console.log(cartitems);

@@ -7,8 +7,10 @@ import { GoChevronRight } from "react-icons/go";
 import { fetchGetAllProducts } from "../../../api";
 import { Iproduct } from "@/interfaces";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const Featured = () => {
+  const navigate = useNavigate();
   const {
     data: Products,
     isLoading,
@@ -95,6 +97,7 @@ const Featured = () => {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.7, type: "tween" }}
                     className="flex flex-col pt-20 gap-5 justify-center"
+                    onClick={() => navigate(`/product/${item.productId}`)}
                   >
                     <div className=" flex justify-center items-center">
                       <img

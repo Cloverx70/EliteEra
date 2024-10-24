@@ -1,17 +1,12 @@
-import { Iproduct } from "@/interfaces";
-import React, { useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Iproduct, IProductVariant } from "@/interfaces";
+import React, { useEffect, useState } from "react";
 import { TiStarFullOutline } from "react-icons/ti";
 import { AnimatePresence, motion } from "framer-motion";
-import { FaPlus } from "react-icons/fa6";
-import { FaMinus } from "react-icons/fa6";
+import { useQuery } from "@tanstack/react-query";
+import { fetchGetVariantsByProductId } from "@/api";
+
 const ProductOverview = ({
+  productId,
   productTitle,
   productAbout,
   productDescription,
@@ -22,18 +17,34 @@ const ProductOverview = ({
   productFourthPicure,
   productRating,
   productOrigin,
+  productStock,
 }: Iproduct) => {
-  const [images, setImages] = useState([
+  const [images, setImages] = useState<string[]>([]);
+  const [mainImg, setMainImg] = useState("");
+  const [selectedVariants, setSelectedVariants] = useState<{
+    [key: string]: string;
+  }>({});
+  const [counter, setCounter] = useState(1);
+
+  useEffect(() => {
+    const availableImages = [
+      productPicture,
+      productSecondPicture,
+      productThirdPicture,
+      productFourthPicure,
+    ].filter(Boolean);
+    setMainImg(availableImages[0]);
+    setImages(availableImages);
+  }, [
+    productPicture,
     productSecondPicture,
     productThirdPicture,
     productFourthPicure,
   ]);
 
-  const [mainImg, setMainImg] = useState(images[0]);
-
   const stars = () => {
     return Array.from({ length: productRating }, (_, index) => (
-      <TiStarFullOutline key={index} color="white" size={15} />
+      <TiStarFullOutline key={index} color="yellow" size={15} />
     ));
   };
 
@@ -44,11 +55,42 @@ const ProductOverview = ({
     setMainImg(newImages[0]);
   };
 
-  const [Counter, setCounter] = useState(1);
+  const handleOnInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = event.target.value;
+    if (inputValue === "") {
+      setCounter(0);
+    } else {
+      const numberValue = Number(inputValue);
+      if (!isNaN(numberValue) && numberValue > 0) {
+        setCounter(numberValue);
+      }
+    }
+  };
 
+  const {
+    data: variants,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["Pvariants"],
+    queryFn: async () => await fetchGetVariantsByProductId(productId),
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>; // You can replace this with a loader/spinner
+  }
+
+  if (isError) {
+    return <div>Error loading product information</div>;
+  }
+  const handleVariantSelect = (variantName: string, option: string) => {
+    setSelectedVariants((prev) => ({ ...prev, [variantName]: option }));
+  };
+
+  console.log(Object.entries(variants[0]), "hi");
   return (
     <div className="w-full flex gap-x-10">
-      <div className="w-96 flex flex-col gap-y-4">
+      <div className="p-2 flex flex-col gap-y-4">
         <div className="w-[400px] h-96 flex items-center justify-center">
           <AnimatePresence mode="popLayout">
             <motion.img
@@ -76,53 +118,72 @@ const ProductOverview = ({
           ))}
         </div>
       </div>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col text-white">
-          <p className="text-custom-light-purple font-Poppins font-bold text-4xl">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col">
+          <p className="text-black font-Poppins font-bold text-4xl">
             {productTitle}
           </p>
-          <div className="flex gap-1 pt-1 pb-1">{stars()}</div>
-          <p className="font-cabin font-bold text-2xl">{productPrice}$</p>
-          <p className=" text-sm text-custom-ke7li uppercase">
+          <p className="font-cabin font-bold text-2xl text-custom-light-purple">
+            {productPrice}$
+          </p>
+          <p className="text-xs font-semibold text-custom-ke7li uppercase">
             {productOrigin}
           </p>
         </div>
-        <div className="flex gap-3">
-          <Select>
-            <SelectTrigger className="font-Poppins font-bold w-[180px] bg-custom-ke7li border-none text-white">
-              <SelectValue placeholder="Choose size" />
-            </SelectTrigger>
-            <SelectContent className="font-Poppins font-bold bg-custom-ke7li border-none text-white">
-              <SelectItem value="s">Small</SelectItem>
-              <SelectItem value="m">Medium</SelectItem>
-              <SelectItem value="l">Large</SelectItem>
-              <SelectItem value="xl">XL</SelectItem>
-              <SelectItem value="xxl">2XL</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select>
-            <SelectTrigger className="font-Poppins font-bold w-[180px] bg-custom-ke7li border-none text-white">
-              <SelectValue placeholder="Choose color" />
-            </SelectTrigger>
-            <SelectContent className="font-Poppins font-bold bg-custom-ke7li border-none text-white">
-              <SelectItem value="black">Black</SelectItem>
-              <SelectItem value="white">White</SelectItem>
-              <SelectItem value="biege">Biege</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col gap-3">
+          {variants?.map((item: IProductVariant) => (
+            <div
+              key={item.VariantName}
+              className="flex flex-col gap-2 font-Poppins"
+            >
+              <p className="text-black font-semibold">
+                Choose {item.VariantName}
+              </p>
+              <div className="flex gap-5 pl-3 text-sm">
+                {Object.entries(item.VariantDetails).map(
+                  ([variantType, details]) =>
+                    Array.isArray(details) &&
+                    details.map((detail: string, index: number) => (
+                      <button
+                        key={index}
+                        onClick={() => handleVariantSelect(variantType, detail)}
+                        className={`px-4 py-1 rounded-full border-2 ${
+                          selectedVariants[variantType] === detail
+                            ? "bg-custom-light-purple text-white border-transparent"
+                            : "bg-white text-black border-gray-300"
+                        }`}
+                      >
+                        {detail.toUpperCase()}
+                      </button>
+                    ))
+                )}
+              </div>
+            </div>
+          ))}
+
+          <div className="flex gap-3">
+            <input
+              type="number"
+              value={counter === 0 ? "" : counter}
+              onChange={handleOnInput}
+              min="1"
+              className="w-20 h-8 text-center border-black border-[1.5px] outline-none"
+            />
+            <button className="h-8 px-4 bg-custom-light-purple text-white">
+              Add to cart
+            </button>
+          </div>
+          <div className="text-custom-ke7li font-poppins w-[700px]">
+            {productAbout}
+          </div>
+          <div className="font-Poppins flex gap-2 items-center justify-start">
+            <div className="flex gap-1 items-center justify-center">
+              {stars()}
+              <p className="text-xs">{productRating}</p>
+            </div>
+            <p className="text-xs"> | {productStock} in stock </p>
+          </div>
         </div>
-        <div className=" w-52 h-10  flex text-white ">
-          <div className=" w-1/4 h-full bg-white text-custom-light-purple  flex items-center justify-center">
-            <FaMinus />
-          </div>
-          <div className=" w-1/2 h-full bg-custom-dark-ke7li  flex items-center justify-center">
-            1
-          </div>
-          <div className=" w-1/4 h-full  bg-white text-custom-light-purple  flex items-center justify-center">
-            <FaPlus />
-          </div>
-        </div>
-        <div className="text-white font-poppins w-[700px]">{productAbout}</div>
       </div>
     </div>
   );

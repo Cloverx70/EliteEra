@@ -77,7 +77,7 @@ const AdminPage = () => {
             <OrdersScreen
               OrderFilter={OrderFilter}
               setOrderFilter={setOrderFilter}
-            />{" "}
+            />
           </div>
         )}
         {ScreenState.Users && <UsersScreen />}

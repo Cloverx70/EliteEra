@@ -16,6 +16,7 @@ import { getCheckoutDto } from './dtos/getCheckout.dto';
 import { use } from 'passport';
 import { statistics } from 'src/entities/entities/statistics';
 import { StatisticsService } from 'src/statistics/statistics.service';
+import { updateCheckoutStatusDto } from './dtos/updateCheckoutStatus.dto';
 
 @Injectable()
 export class CheckoutuserproductsService {
@@ -199,6 +200,28 @@ export class CheckoutuserproductsService {
     try {
       const checkouts = await this.checkoutUserProductRepo.find();
       if (checkouts) return checkouts;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async updateCheckoutStatus(
+    checkoutId: number,
+    updateCheckoutStatus: updateCheckoutStatusDto,
+  ) {
+    try {
+      const checkout = await this.checkoutUserProductRepo.findOne({
+        where: { checkoutId: checkoutId },
+      });
+
+      if (checkout) {
+        checkout.deliveryStatus = updateCheckoutStatus.Deliverystatus;
+        checkout.paymentStatus = updateCheckoutStatus.Paymentstatus;
+        if (updateCheckoutStatus.Orderstatus)
+          checkout.orderStatus = updateCheckoutStatus.Orderstatus;
+        await this.checkoutUserProductRepo.save(checkout);
+        return checkout;
+      }
     } catch (error) {
       console.error(error);
     }

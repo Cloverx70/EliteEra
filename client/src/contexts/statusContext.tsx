@@ -11,6 +11,7 @@ type StatusContextValue = {
   statusError: boolean;
   statusPending: boolean;
   statusLoading: boolean;
+  statusFetching: boolean;
   refetchStatus: () => void;
   setStatus: React.Dispatch<
     React.SetStateAction<{
@@ -39,19 +40,20 @@ export const MyStatusContext = ({
     isError: statusError,
     isLoading: statusLoading,
     isPending: statusPending,
+    isFetching: statusFetching,
     refetch: refetchStatus,
   } = useQuery({
     queryKey: ["status"],
-    queryFn: async () => await fetchStatus(localStorage.getItem("token")),
+    queryFn: async () => await fetchStatus(),
   });
-
-  console.log(data?.userId);
 
   const { data: Status } = useQuery({
     queryKey: ["user"],
     queryFn: async () => await fetchGetUserById(data?.userId!),
     enabled: !!data?.userId,
   });
+
+  console.log(Status);
 
   const isAdmin = data?.isAdmin;
 

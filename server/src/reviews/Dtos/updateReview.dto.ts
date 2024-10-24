@@ -1,4 +1,6 @@
 export class updateReviewDto {
-  rating: number;
-  message: string;
+  rating: number | null;
+  message: string | '';
+  upvote: number;
+  downvote: number;
 }

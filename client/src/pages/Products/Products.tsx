@@ -29,7 +29,7 @@ const Products = () => {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.5, ease: "linear" }}
-        className=" w-full h-80 my-4 bg-custom-light-purple"
+        className=" w-full h-80 mb-5 bg-custom-light-purple"
       ></motion.div>
 
       <section className=" px-10  w-full min-h-screen text-white flex flex-col gap-10 ">

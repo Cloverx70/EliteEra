@@ -46,24 +46,32 @@ export class BoughtTogetherService {
       console.log(error);
     }
   }
-
-  async getBtogetherProducts(BtogetherId: number) {
+  async getBtogetherProducts(btogetherId: number) {
     try {
+      console.log(btogetherId);
       const btogether = await this.BtogetherProductRepo.findOne({
-        where: { boughtTogetheProductId: BtogetherId },
+        where: { boughtTogetheProductId: btogetherId },
       });
 
       if (!btogether) {
         throw new Error(
-          `No record found for boughtTogetheProductId ${BtogetherId}`,
+          `No record found for boughtTogetheProductId ${btogetherId}`,
         );
       }
 
-      const prodids = Object.values(btogether.boughtTogetherProductIds);
+      // Flatten the array if needed
+      const prodids = [].concat(
+        ...Object.values(btogether.boughtTogetherProductIds),
+      );
 
-      const products = await this.ProductRepo.find({
-        where: { productId: In(prodids) },
-      });
+      // Use Promise.all with map to fetch products
+      const products = await Promise.all(
+        prodids.map(async (id) => {
+          return await this.ProductRepo.findOne({
+            where: { productId: id },
+          });
+        }),
+      );
 
       console.log(products);
 

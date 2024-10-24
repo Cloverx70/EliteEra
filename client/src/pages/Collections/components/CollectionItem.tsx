@@ -31,7 +31,7 @@ const CollectionItem: React.FC = () => {
   if (isError) return <p>Error loading collections.</p>;
 
   return (
-    <section className="w-full text-white flex flex-col gap-4 py-10">
+    <section className="w-full text-white flex flex-col gap-4 pb-10">
       {
         //@ts-ignore
         collections?.map((collection: Icollection) => (

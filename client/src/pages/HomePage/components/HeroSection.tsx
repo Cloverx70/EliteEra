@@ -17,6 +17,7 @@ import { Iproduct } from "@/interfaces";
 import { createToast } from "@/shared/Toast";
 import { useStatus } from "@/contexts/statusContext";
 import HeroSetionSkeleton from "../Skeletons/HeroSetionSkeleton";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
   const [startIdx, setStartIdx] = useState(0);
@@ -34,19 +35,14 @@ const HeroSection = () => {
 
   const client = useQueryClient();
   const { Status } = useStatus();
-  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   const handleOnClickAddProductToCart = async (
     productid: number,
     productPrice: number
   ) => {
     try {
-      let Proditem = await fetchAddUserProduct(
-        Status!.userId,
-        productid,
-        1,
-        token!
-      );
+      let Proditem = await fetchAddUserProduct(Status!.userId, productid, 1);
       if (Proditem) {
         createToast(
           `${Proditem.productTitle} has been successfully added to your cart`
@@ -54,29 +50,27 @@ const HeroSection = () => {
         await fetchUpdateUserCartByUserId(
           Status!.userId,
           Proditem.productPrice,
-          1,
-          token!
+          1
         );
       } else {
         const userProduct = await fetchGetUserProductByUIDandPID(
           Status!.userId,
-          productid,
-          token!
+          productid
         );
         if (userProduct) {
           Proditem = await fetchUpdateUserProductByUIDandUPID(
             Status!.userId,
             userProduct.userProductId,
             1,
-            productPrice,
-            token!
+            productPrice
           );
           createToast(
             `${Proditem.productTitle} has been successfully added to your cart`
           );
         }
       }
-      client.invalidateQueries({ queryKey: ["CartItems", "cart"] });
+      client.invalidateQueries({ queryKey: ["CartItems"] });
+      client.invalidateQueries({ queryKey: ["cart"] });
     } catch {
       createToast("Unexpected error please try again later..");
     }
@@ -168,7 +162,10 @@ const HeroSection = () => {
                   className="flex flex-col justify-around"
                 >
                   <div className="flex flex-col pl-16 h-full z-20 sm:gap-4 justify-around">
-                    <div className="flex flex-col items-start custom-mobile:items-center sm:items-center gap-y-3 custom-mobile:gap-5">
+                    <div
+                      onClick={() => navigate(`/product/${item.productId}`)}
+                      className="flex flex-col items-start custom-mobile:items-center sm:items-center gap-y-3 custom-mobile:gap-5"
+                    >
                       <p className="font-bold w-[500px] lg:w-[450px] custom-mobile:w-[250px] md:w-[290px] sm:w-[160px] sm:text-center z-20 text-6xl custom-mobile:text-center custom-mobile:text-4xl sm:text-xl md:text-4xl">
                         {item.productTitle}
                       </p>
@@ -186,7 +183,10 @@ const HeroSection = () => {
                         alt=""
                       />
                     </div>
-                    <div className="flex custom-mobile:justify-center sm:justify-center custom-mobile:hidden z-20 gap-5">
+                    <div
+                      className="flex custom-mobile:justify-center sm:justify-center custom-mobile:hidden z-20 gap-5"
+                      onClick={() => navigate(`/product/${item.productId}`)}
+                    >
                       <p className="text-custom-ke7l md:text-3xl sm:text-xl custom-mobile:text-base font-bold text-4xl line-through">
                         $ 199
                       </p>

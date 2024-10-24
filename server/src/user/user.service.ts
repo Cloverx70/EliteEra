@@ -32,9 +32,13 @@ export class UserService {
   }
 
   async removeUserById(id: number): Promise<Users> {
-    const user = await this.userRepo.findOne({ where: { userId: id } });
-    await this.userRepo.remove(user);
-    return user;
+    try {
+      const user = await this.userRepo.findOne({ where: { userId: id } });
+      await this.userRepo.remove(user);
+      return user;
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async updateUserById(id: number, req: updateUserDto) {

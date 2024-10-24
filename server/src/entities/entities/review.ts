@@ -1,4 +1,4 @@
-import { Column, Entity, NumericType, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('review', { schema: 'ecommerce' })
 export class review {
@@ -15,7 +15,7 @@ export class review {
     name: 'user_pfp',
     nullable: true,
     unique: false,
-    length: 200,
+    length: 1000,
   })
   userPfp: string | null;
 
@@ -37,4 +37,25 @@ export class review {
     unique: false,
   })
   message: string;
+  @Column('timestamp', {
+    name: 'date_created',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  date: Date;
+
+  @Column('int', { name: 'upvotes', default: 0 })
+  upVotes: number;
+
+  @Column('int', { name: 'downvotes', default: 0 })
+  downVotes: number;
+
+  @Column('json', {
+    name: 'upvotedusers',
+    unique: false,
+    nullable: false,
+  })
+  upvotedUsers: number[];
+
+  @Column('json', { name: 'downvotedusers', unique: false, nullable: false })
+  downvotedUsers: number[];
 }

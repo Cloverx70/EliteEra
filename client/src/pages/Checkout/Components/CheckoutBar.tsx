@@ -56,6 +56,7 @@ const CheckoutBar: React.FC<CheckoutProps> = ({
   const client = useQueryClient();
   const handleRemoveUserProductsOnClick = async () => {
     try {
+      console.log(userproducts, "hi");
       userproducts.forEach(async (element: IuserProduct) => {
         await fetchRemoveUserProduct(
           element.userProductId,
@@ -65,17 +66,16 @@ const CheckoutBar: React.FC<CheckoutProps> = ({
         await fetchUpdateUserCartByUserId(
           Status?.userId!,
           -element.productPrice,
-          -element.qty,
-          ""
+          -element.qty
         );
+      });
 
-        client.invalidateQueries({
-          queryKey: ["cart"],
-        });
+      client.invalidateQueries({
+        queryKey: ["cart"],
+      });
 
-        client.invalidateQueries({
-          queryKey: ["CartItems"],
-        });
+      client.invalidateQueries({
+        queryKey: ["CartItems"],
       });
     } catch (error) {
       console.error(error);

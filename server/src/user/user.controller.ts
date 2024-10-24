@@ -22,8 +22,9 @@ export class UserController {
     return await this.userService.getUserById(id);
   }
 
+  @UseGuards(adminGuard)
   @Post('remove-user-by-id/:id')
-  async removeUserById(id: number) {
+  async removeUserById(@Param('id') id: number) {
     return await this.userService.removeUserById(id);
   }
 

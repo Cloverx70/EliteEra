@@ -42,8 +42,7 @@ export const fetchGetBtogetherProducts = async (id: number) => {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       }
     );
-    if (response.data) return response.data;
-    else return null;
+    return response.data;
   } catch (error) {
     console.error(error);
   }
@@ -122,6 +121,31 @@ export const fetchCreateCategory = async (name: string) => {
 };
 
 //Checkout Route :
+
+export const fetchUpdateCheckoutStatus = async (
+  checkoutId: number,
+  Deliverystatus: string,
+  Paymentstatus: string,
+  Orderstatus: string | null
+) => {
+  try {
+    const response = await axios.post(
+      `checkoutuserproducts/update-checkout-by-checkout-id/${checkoutId}`,
+      {
+        Paymentstatus,
+        Deliverystatus,
+        Orderstatus,
+      },
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+    if (response.data) return response.data;
+    else return null;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 export const fetchGetAllCheckouts = async () => {
   try {
@@ -353,15 +377,48 @@ export const fetchAddUserReviewByUserIdAndProdId = async (
     console.error(error);
   }
 };
+
+export const fetchUpdateReviewsByUseridAndProductId = async (
+  uid: number,
+  pid: number,
+  request: {
+    rating: number | null;
+    message: string | "";
+    upvote: number;
+    downvote: number;
+  }
+) => {
+  try {
+    const response = await axios.post(
+      `reviews/update-review-by-user-id-and-product-id`,
+      {
+        uid: uid,
+        pid: pid,
+        request: {
+          rating: request.rating,
+          message: request.rating,
+          upvote: request.upvote,
+          downvote: request.downvote,
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    if (response.data) return response.data;
+  } catch (error) {}
+};
 //Cart route :
 
-export const fetchGetUserCartByUserId = async (id: number, token: string) => {
+export const fetchGetUserCartByUserId = async (id: number) => {
   try {
     const response = await axios.post(
       `cart/get-cart-by-user-id/${id}`,
       {},
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       }
     );
 
@@ -374,8 +431,7 @@ export const fetchGetUserCartByUserId = async (id: number, token: string) => {
 export const fetchUpdateUserCartByUserId = async (
   id: number,
   MinusTotal: number,
-  MinusCartItemsNumber: number,
-  token: string
+  MinusCartItemsNumber: number
 ) => {
   try {
     const response = await axios.post(
@@ -431,8 +487,7 @@ export const fetchRemoveUserProduct = async (
 export const fetchAddUserProduct = async (
   uid: number,
   pid: number,
-  qty: number,
-  token: string
+  qty: number
 ) => {
   try {
     const response = await axios.post(
@@ -444,7 +499,7 @@ export const fetchAddUserProduct = async (
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -477,8 +532,7 @@ export const fetchUpdateUserProductByUIDandUPID = async (
   uid: number,
   upid: number,
   qty: number,
-  price: number,
-  token: string
+  price: number
 ) => {
   try {
     const response = await axios.post(
@@ -491,7 +545,7 @@ export const fetchUpdateUserProductByUIDandUPID = async (
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -504,8 +558,7 @@ export const fetchUpdateUserProductByUIDandUPID = async (
 
 export const fetchGetUserProductByUIDandPID = async (
   uid: number,
-  pid: number,
-  token: string
+  pid: number
 ) => {
   try {
     const response: AxiosResponse<IuserProduct> = await axios.post(
@@ -516,7 +569,7 @@ export const fetchGetUserProductByUIDandPID = async (
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -549,6 +602,24 @@ export const fetchGetAllCollectionProducts = async (id: number) => {
 
 //Products route :
 
+export const fetchUpdateProductById = async (
+  id: number,
+  productAndVariant: any
+) => {
+  const response = await axios.post(
+    `product/update-product-by-id/${id}`,
+    {
+      productAndVariant,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  if (response.data) return response.data;
+};
+
 export const fetchGetProductById = async (id: number) => {
   const response = await axios.post<Iproduct>(
     `product/get-product-by-id/${id}`
@@ -564,6 +635,24 @@ export const fetchGetAllProducts = async () => {
 
 //Auth route :
 
+export const fetchRemoveUserById = async (id: number) => {
+  try {
+    const response = await axios.post(
+      `user/remove-user-by-id/${id}`,
+      {},
+      {
+        headers: { Authorization: `bearer ${localStorage.getItem("token")}` },
+      }
+    );
+
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const fetchGetUserById = async (id: number) => {
   try {
     const response = await axios.post(
@@ -571,7 +660,7 @@ export const fetchGetUserById = async (id: number) => {
       {},
       {
         headers: {
-          Authorization: localStorage.getItem("token"),
+          Authorization: `bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -584,31 +673,39 @@ export const fetchGetUserById = async (id: number) => {
 };
 
 export const fetchLogin = async (email: string, password: string) => {
-  const response = await axios.post("auth/login", {
-    email: email,
-    password: password,
-  });
-  const token = response.data || null;
+  try {
+    const response = await axios.post("auth/login", {
+      email: email,
+      password: password,
+    });
+    const token = response.data;
 
-  if (token) {
-    localStorage.setItem("token", token);
+    if (token) {
+      localStorage.setItem("token", token);
+    }
+    return response;
+  } catch (error) {
+    console.log(error);
   }
-  return response;
 };
 
-export const fetchStatus = async (token: string | null) => {
-  const response: AxiosResponse<UserData> = await axios.get<UserData>(
-    "auth/status",
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
+export const fetchStatus = async () => {
+  try {
+    const response: AxiosResponse<UserData> = await axios.get<UserData>(
+      "auth/status",
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    console.log(response.data);
+    if (response.status >= 200 && response.status < 300) return response.data;
+    else {
+      return null;
     }
-  );
-  console.log(response.data);
-  if (response.status >= 200 && response.status < 300) return response.data;
-  else {
-    return null;
+  } catch (error) {
+    console.error(error);
   }
 };
 
@@ -621,17 +718,20 @@ export const fetchRegister = async (
   addressTwo: string,
   birthdate: Date
 ) => {
-  const response = await axios.post("auth/signup", {
-    username,
-    fullname,
-    email,
-    password,
-    addressOne,
-    addressTwo,
-    birthdate,
-  });
-
-  return response.data;
+  try {
+    const response = await axios.post("auth/signup", {
+      username,
+      fullname,
+      email,
+      password,
+      addressOne,
+      addressTwo,
+      birthdate,
+    });
+    if (response.data) return response.data;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 export const FetchUpdateUserById = async (

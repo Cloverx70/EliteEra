@@ -27,19 +27,29 @@ const App = () => {
     location.pathname === "/" ? "" : "bg-custom-light-purple border-none";
 
   const navBgColor =
-    location.pathname === "/admin"
+    location.pathname !== "/"
       ? " text-white bg-custom-light-purple"
       : " text-white ";
 
+  const NavTextColorOnHover =
+    location.pathname == "/products" ||
+    location.pathname == "/collections" ||
+    location.pathname == "/contactus" ||
+    /^\/orderhistory\/\d+$/.test(location.pathname) ||
+    location.pathname === "/orderhistory" ||
+    location.pathname === "/profile"
+      ? "hover:text-custom-dark-ke7li"
+      : "hover:text-custom-light-purple";
+
   return (
     <>
-      {location.pathname === "/login" ||
-      /^\/orderhistory\/\d+$/.test(location.pathname) ||
-      location.pathname === "/orderhistory" ||
-      location.pathname === "/profile" ? (
+      {location.pathname === "/login" ? (
         ""
       ) : (
-        <Navbar NavBgColor={navBgColor} />
+        <Navbar
+          NavBgColor={navBgColor}
+          NavTextColorOnHover={NavTextColorOnHover}
+        />
       )}
 
       <Routes>

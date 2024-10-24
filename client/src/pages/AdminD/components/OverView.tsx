@@ -121,7 +121,14 @@ const StatGraph = ({ data }: StateGraphProps) => {
   return (
     <section>
       <LineChart
-        xAxis={[{ data: [0, 1, 2, 3, 8, 10, 15, 20, 30, 40, 50, 60] }]}
+        xAxis={[
+          {
+            data: [
+              0, 1, 2, 3, 8, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120,
+              140, 150, 200,
+            ],
+          },
+        ]}
         series={[
           {
             data: data,
